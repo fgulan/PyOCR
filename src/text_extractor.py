@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import binarizer
 import imutils
+import binarizer, text_extractor
 
 from utils import hist
 from utils.helpers import _debug_display_image, _debug_plot_array
@@ -21,7 +22,8 @@ def process_debug(image):
     return image[min_y:max_y, min_x:max_x]
 
 def main():
-    input_image = cv2.imread('../data/test.jpg', cv2.IMREAD_GRAYSCALE)
+    import pdb; pdb.set_trace()
+    input_image = cv2.imread('../data/uvod.jpg', cv2.IMREAD_GRAYSCALE)
     input_image = cv2.medianBlur(input_image, 3)
     input_image = binarizer.process(input_image)
     input_image = cv2.bitwise_not(input_image)
@@ -32,7 +34,7 @@ def main():
     output_image = process_debug(input_image)
 
     _debug_display_image(output_image)
-    cv2.imwrite('./datae.jpg', output_image)
+    cv2.imwrite('./datae.jpg', cv2.bitwise_not(output_image))
 
 if __name__ == '__main__':
     main()
