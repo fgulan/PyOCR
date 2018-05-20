@@ -22,7 +22,6 @@ def process_debug(image):
     return image[min_y:max_y, min_x:max_x]
 
 def main():
-    import pdb; pdb.set_trace()
     input_image = cv2.imread('../data/uvod.jpg', cv2.IMREAD_GRAYSCALE)
     input_image = cv2.medianBlur(input_image, 3)
     input_image = binarizer.process(input_image)
