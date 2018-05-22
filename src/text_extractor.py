@@ -17,23 +17,21 @@ def process(image):
 
     return min_y, max_y, min_x, max_x
 
-def process_debug(image):
+def process_debug(image, original_image):
     min_y, max_y, min_x, max_x = process(image)
-    return image[min_y:max_y, min_x:max_x]
+    return original_image[min_y:max_y, min_x:max_x]
 
 def main():
     input_image = cv2.imread('../data/uvod.jpg', cv2.IMREAD_GRAYSCALE)
-    input_image = cv2.medianBlur(input_image, 3)
-    input_image = binarizer.process(input_image)
-    input_image = cv2.bitwise_not(input_image)
+    binarized_image = binarizer.process(input_image)
+    inverted_image = cv2.bitwise_not(binarized_image)
 
     kernel = np.ones((3, 3) , np.uint8)
-    input_image = cv2.dilate(input_image, kernel, iterations = 1)
+    dilated_image = cv2.dilate(inverted_image, kernel, iterations=1)
     
-    output_image = process_debug(input_image)
+    output_image = process_debug(dilated_image, inverted_image)
 
-    _debug_display_image(output_image)
-    cv2.imwrite('./datae.jpg', cv2.bitwise_not(output_image))
+    cv2.imwrite('./datae.jpg', output_image)
 
 if __name__ == '__main__':
     main()
