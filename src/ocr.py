@@ -6,10 +6,6 @@ import binarizer, text_extractor
 
 from utils.helpers import _debug_display_image, _debug_plot_array
 
-def load_image(path):
-    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    return image
-
 def mask_image(image, blob_area):
     min_y, max_y, min_x, max_x = blob_area
     return image[min_y:max_y, min_x:max_x]

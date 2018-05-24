@@ -8,7 +8,7 @@ from utils import hist
 from utils.helpers import _debug_display_image, _debug_plot_array
 
 LINE_SEPARATION_NOISE_PERCENTAGE = 0.01
-LINE_PADDING_PRECENTAGE = 0.15
+LINE_PADDING_PRECENTAGE = 0.01
 
 def _process_padding(lines, image):
     padding_precentage = 1 + LINE_PADDING_PRECENTAGE
@@ -28,6 +28,7 @@ def _process_padding(lines, image):
 
 def process(image):
     h_proj = hist.horizontal_projection(image)
+    _debug_plot_array(h_proj)
     h_proj_th = np.mean(h_proj) * LINE_SEPARATION_NOISE_PERCENTAGE
     height, _ = image.shape[:2]
 
@@ -66,7 +67,7 @@ def process_debug(image, original_image):
     cv2.imwrite("debug_result.png", out_image)
 
 def main():
-    input_image = cv2.imread('../data/intro.jpg', cv2.IMREAD_COLOR)
+    input_image = cv2.imread('../data/testaa.jpg', cv2.IMREAD_COLOR)
     grayscale_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     preprocessed_image = binarizer.preprocess(grayscale_image)
     binarized_image = binarizer.process(preprocessed_image)
