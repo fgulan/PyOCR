@@ -3,16 +3,11 @@ import numpy as np
 from ocr_image import OCRImage
 from line_image import LineImage
 
-from utils import hist
+from utils import hist, constants
 from utils.helpers import debug_plot_array
 
 
 class TextImageBaseline(OCRImage):
-
-    NOISE_PIXELS_THRESHOLD = 2
-    MEAN_HISTOGRAM_CUTOFF = 0.9
-    CAP_HEIGHT = 0.5
-    BASELINE_HEIGHT = 0.7
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
@@ -30,23 +25,33 @@ class TextImageBaseline(OCRImage):
         hist_peaks = self._filter_hist_peaks(h_proj_smooth, hist_peaks)
         
         lines = self._include_typography(hist_peaks, image)
-
+        blobs = self._strip_lines(lines, image)
         line_images = []
-        for coords in lines:
-            y1, y2 = coords
-            roi_image = image[y1:y2, ]
+        for (y1, y2, x1, x2) in blobs:
+            roi_image = image[y1:y2, x1:x2]
 
-            x_offset = self.get_x()
-            y_offset = self.get_y()
-            width = width
+            x_offset = self.get_x() + x1
+            y_offset = self.get_y() + y1
+            width = x2 - x1
             height = y2 - y1
 
-            line_image = LineImage(
-                roi_image, width, height, x_offset, y_offset)
+            line_image = LineImage(roi_image, width, height, x_offset, y_offset)
             line_images.append(line_image)
 
         self.lines = line_images
         return line_images
+        
+    def _strip_lines(self, lines, image):
+        blobs = []
+
+        for (y1, y2) in lines:
+            roi = image[y1:y2,:]
+            v_proj = hist.vertical_projection(roi)
+            x1, x2 = hist.blob_range(v_proj)
+            if x1 >= 0 and x2 >= 0:
+                blobs.append((y1, y2, x1, x2))
+
+        return blobs
 
     def _include_typography(self, lines, image):
         image_height, _ = image.shape[:2]
@@ -55,8 +60,8 @@ class TextImageBaseline(OCRImage):
         padded_lines = []
         for (y1, y2) in lines:
             line_height = y2 - y1
-            cap_height = int(line_height * self.CAP_HEIGHT)
-            baseline_height = int(line_height * self.BASELINE_HEIGHT)
+            cap_height = int(line_height * constants.CAP_HEIGHT)
+            baseline_height = int(line_height * constants.BASELINE_HEIGHT)
 
             y1 = max(0, y1 - cap_height)
             y2 = min(max_index, y2 + baseline_height)
@@ -75,7 +80,7 @@ class TextImageBaseline(OCRImage):
 
     def _get_mean_peak_cords(self, hist, coords, mean):
         start_x, end_x = coords
-        threshold = mean * self.MEAN_HISTOGRAM_CUTOFF
+        threshold = mean * constants.MEAN_HISTOGRAM_CUTOFF
         candidates = []
 
         x1, x2 = None, None
@@ -114,7 +119,7 @@ class TextImageBaseline(OCRImage):
         start_x, end_x = None, None
 
         for index, value in enumerate(hist):
-            if value <= self.NOISE_PIXELS_THRESHOLD:
+            if value <= constants.NOISE_PIXELS_THRESHOLD:
                 if start_x == None:
                     start_x = index
                 end_x = index

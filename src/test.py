@@ -25,6 +25,7 @@ lines = text_image.get_segments()
 
 
 for line in lines:
-    debug_display_image(line.get_image())
-    # words = line.get_segments()
-    # for word in words:
+    # debug_display_image(line.get_image())
+    words = line.get_segments()
+    for word in words:
+        debug_display_image(word.get_image())
