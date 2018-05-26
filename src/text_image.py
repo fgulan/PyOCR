@@ -38,7 +38,6 @@ class TextImage(OCRImage):
             line_image = LineImage(roi_image, width, height, x_offset, y_offset)
             line_images.append(line_image)
 
-        import pdb; pdb.set_trace()
         self.lines = line_images
         return line_images
 
@@ -98,13 +97,26 @@ class TextImage(OCRImage):
         image_height, _ = image.shape[:2]
         max_index = image_height - 1
 
-        new_lines = []
+        padded_lines = []
         for (y1, y2) in lines:
             line_height = y2 - y1
             padded_line_height = line_height * padding_precentage
             half_distance = round((padded_line_height - line_height) / 2)
             y1 = max(0, y1 - half_distance)
             y2 = min(max_index, y2 + half_distance)
+            padded_lines.append((y1, y2))
+
+        # Pad lines below average height to improve word extraction
+        line_heights = [y2 - y1 for (y1, y2) in lines]
+        avg_line_height = sum(line_heights) / len(lines)
+
+        new_lines = []
+        for (y1, y2) in padded_lines:
+            line_height = y2 - y1
+            if line_height < avg_line_height:
+                half_distance = round((avg_line_height - line_height) / 2)
+                y1 = max(0, y1 - half_distance)
+                y2 = min(max_index, y2 + half_distance)
             new_lines.append((y1, y2))
 
         return np.array(new_lines)

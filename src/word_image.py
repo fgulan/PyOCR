@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from src.ocr_image import OCRImage
+from ocr_image import OCRImage
 
 
 class WordImage(OCRImage):
