@@ -4,6 +4,7 @@ import numpy as np
 
 from utils import hist
 
+
 class OCRImage:
 
     MAX_ROTATE = 15
@@ -81,7 +82,10 @@ class OCRImage:
         center = (width // 2, height // 2)
 
         rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
-        return cv2.warpAffine(image, rotation_matrix,
-                              (width, height),
-                              flags=cv2.INTER_CUBIC,
-                              borderMode=cv2.BORDER_REPLICATE)
+        rotated_image = cv2.warpAffine(image, rotation_matrix,
+                                       (width, height),
+                                       flags=cv2.INTER_CUBIC,
+                                       borderMode=cv2.BORDER_REPLICATE)
+        output_image = cv2.threshold(
+            rotated_image, 127, 255, cv2.THRESH_BINARY)[1]
+        return output_image

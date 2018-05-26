@@ -17,6 +17,8 @@ class TextImageBaseline(OCRImage):
     def get_segments(self):
         image = self.get_image()
         height, width = image.shape[:2]
+
+        # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
         h_proj = hist.horizontal_projection(image)
         h_proj_smooth = hist.running_mean(h_proj, 5)
 
@@ -99,7 +101,10 @@ class TextImageBaseline(OCRImage):
                     candidates.append((x1, x2))
                 x1, x2 = None, None
 
-        return self._get_longest_peak_candidate(candidates)
+        if len(candidates) == 0:
+            return coords
+        else:
+            return self._get_longest_peak_candidate(candidates)
 
     def _get_longest_peak_candidate(self, candidates):
         sorted_candidates = sorted(candidates, key=lambda x: (x[1] - x[0]), reverse=True)
