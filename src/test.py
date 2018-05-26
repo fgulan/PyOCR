@@ -30,11 +30,9 @@ lines = text_image.get_segments()
 index = 0
 print("Broj linija", len(lines))
 for line in lines:
-    debug_display_image(line.get_image())
-    # words = line.get_segments()
-    # line.save("./out/" + str(index) + ".jpg")
-    # index += 1
+    words = line.get_segments()
 
-    # for word in words:
-        # word.save("./out/" + str(index) + ".jpg")
+    for word in words:
+        word.save("./out/" + str(index) + ".jpg")
+        index += 1
         # debug_display_image(word.get_image())

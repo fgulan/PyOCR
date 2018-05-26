@@ -69,7 +69,7 @@ class LineImage(OCRImage):
         v_proj = hist.vertical_projection(image[start_y:end_y,:])
 
         start_x, end_x = None, None
-        min_space_len = height // self.SPACE_DISTANCE_RATIO
+        min_space_len = height * constants.WORD_SPACE_DISTANCE_HEIGHT_RATIO
 
         all_spaces = []
         for index, value in enumerate(v_proj):
