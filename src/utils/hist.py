@@ -12,3 +12,6 @@ def blob_range(projection):
     blob = (indices[0], indices[-1]) if len(indices) > 0 else (-1, -1)
     return blob
 
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0)) 
+    return (cumsum[N:] - cumsum[:-N]) / float(N)

@@ -7,6 +7,7 @@ from utils.helpers import load_image, debug_display_image, debug_plot_array
 
 from ocr_image import OCRImage
 from text_image import TextImage
+from text_image_v2 import TextImageBaseline
 
 input_image = load_image("../data/uvod.jpg")
 binarizer = otsu.OtsuBinarization()
@@ -19,11 +20,11 @@ ocr_image = OCRImage(input_image, width, height)
 angle = ocr_image.fix_skew()
 
 roi_image, width, height, min_x, min_y = ocr_image.get_segments()
-text_image = TextImage(roi_image, width, height, min_x, min_y)
+text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
 lines = text_image.get_segments()
 
 
 for line in lines:
-    words = line.get_segments()
-    for word in words:
-        debug_display_image(word.get_image())
+    debug_display_image(line.get_image())
+    # words = line.get_segments()
+    # for word in words:

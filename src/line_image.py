@@ -58,8 +58,7 @@ class LineImage(OCRImage):
         
         return word_coords
 
-    def _get_word_spaces(self, images):
-        image = self.get_image()
+    def _get_word_spaces(self, image):
         height, _ = image.shape[:2]
 
         # Lets ignore everything belowe baseline in histogram calcualtion
