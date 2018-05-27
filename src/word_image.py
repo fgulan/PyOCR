@@ -54,9 +54,9 @@ class WordImage(OCRImage):
     def _get_char_candidates(self, histogram, char_coord):
         start_x, end_x = char_coord
         roi_hist = histogram[start_x:end_x]
-        roi_hist = hist.running_mean(roi_hist, 7)
+        # roi_hist = hist.running_mean(roi_hist, 7)
 
-        hist_spaces = hist.get_histogram_spaces(roi_hist, 3)
+        hist_spaces = hist.get_histogram_spaces(roi_hist, 1)
         hist_peaks = hist.get_histogram_peaks(roi_hist, hist_spaces)
         hist_peaks = hist.filter_histogram_peaks(hist_peaks, 2)
 
