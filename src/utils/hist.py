@@ -55,6 +55,16 @@ def get_histogram_peaks(hist, spaces):
     return hist_peaks
 
 
+def filter_histogram_peaks(hist_peaks, threshold):
+    new_peaks = []
+    
+    for start_x, end_x in hist_peaks:
+        if end_x - start_x >= threshold:
+            new_peaks.append((start_x, end_x))
+        
+    return new_peaks
+
+
 def get_histogram_peak_means(hist, peaks):
     peaks_mean = []
 

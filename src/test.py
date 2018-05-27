@@ -33,6 +33,10 @@ for line in lines:
     words = line.get_segments()
 
     for word in words:
-        word.save("./out/" + str(index) + ".jpg")
+        chars = word.get_segments()
+        for char in chars:
+            debug_display_image(char.get_image())
+            
+        # word.save("./out/" + str(index) + ".jpg")
         index += 1
         # debug_display_image(word.get_image())

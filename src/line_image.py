@@ -23,8 +23,26 @@ class LineImage(OCRImage):
         
         spaces = self._get_word_spaces(image)
         word_coords = self._extract_word_coords(image, spaces)
+        word_coords = self._strip_words(word_coords, image)
         self.words = self._map_word_coords_to_object(image, word_coords)
         return self.words
+
+    def _strip_words(self, word_coords, image):
+        new_coords = []
+
+        for coord in word_coords:
+            start_x, end_x = coord
+
+            roi_image = image[:,start_x:end_x]
+            v_proj = hist.vertical_projection(roi_image)
+            x1, x2 = hist.blob_range(v_proj)
+            
+            new_start_x = start_x + x1
+            new_end_x = start_x + x2
+            
+            new_coords.append((new_start_x, new_end_x))
+        
+        return new_coords
 
     def _map_word_coords_to_object(self, image, word_coords):
         line_height = self.get_height()
