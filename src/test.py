@@ -34,8 +34,8 @@ for line in lines:
 
     for word in words:
         chars = word.get_segments()
-        for char in chars:
-            debug_display_image(char.get_image())
+        # for char in chars:
+            # debug_display_image(char.get_image())
             
         # word.save("./out/" + str(index) + ".jpg")
         index += 1
