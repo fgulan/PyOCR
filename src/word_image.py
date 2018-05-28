@@ -51,7 +51,7 @@ class WordImage(OCRImage):
                 horizontal_char_image)
 
             if end_x - start_x > self.MINIMUM_HEIGHT_WIDTH_RATIO * (end_y - start_y):
-                candidates = self._segment_non_conected_chars(
+                candidates = self._segment_non_connected_chars(
                     image, coord_x, coord_y)
                 new_coords.extend(candidates)
             else:
@@ -59,7 +59,7 @@ class WordImage(OCRImage):
 
         return new_coords
 
-    def _segment_non_conected_chars(self, image, char_coord_x, char_coord_y):
+    def _segment_non_connected_chars(self, image, char_coord_x, char_coord_y):
         start_x, end_x = char_coord_x
         start_y, end_y = char_coord_y
         roi_image = image[start_y:end_y, start_x:end_x]
@@ -72,7 +72,7 @@ class WordImage(OCRImage):
         num_labels = output[0]
         # The third cell is the stat matrix
         stats = output[2]
-
+        # The fourth cell is the centroid matrix
         if num_labels <= 2:
             return [char_coord_x]
 
@@ -80,6 +80,7 @@ class WordImage(OCRImage):
         debug_display_image(roi_image)
         # Skip first element, it is background label
         candidates = stats[1:]
+        centroids = output[3][1:]
 
         width = end_x - start_x
         # If connected components return almost same image
@@ -90,6 +91,9 @@ class WordImage(OCRImage):
         if (len(too_big_comps) > 0):
             print("Ajmee")
             return [char_coord_x]
+
+        # Filter out almost the same segments
+        candidates = self._filter_near_segments(candidates, centroids)
 
         # Sort them by start_x value
         candidates = sorted(
@@ -128,3 +132,36 @@ class WordImage(OCRImage):
         h_proj = hist.horizontal_projection(image)
         start_y, end_y = hist.blob_range(h_proj)
         return start_y, end_y
+
+    def _filter_near_segments(self, candidates, centroids):
+        indexes_to_remove = set()
+        count = len(candidates)
+        merged_infos = zip(candidates, centroids)
+        threshold = 0.9
+        # Sort candidates/centroids by area (biggest first) so that smallest ones
+        # are filtered if centroids are on the same x position
+        merged_infos = sorted(
+            merged_infos, key=lambda info: info[0][cv2.CC_STAT_AREA], reverse=True)
+
+        for index in range(count - 1):
+
+            # Skip current index if it is stored to be removed
+            if index in indexes_to_remove:
+                continue
+
+            _, (current_centroid_x, _) = merged_infos[index]
+            for next_index in range(index + 1, count):
+                _, (next_centroid_x, _) = merged_infos[next_index]
+                dividend = min(current_centroid_x, next_centroid_x)
+                divisor = max(current_centroid_x, next_centroid_x)
+                if dividend/divisor > threshold:
+                    indexes_to_remove.add(next_index)
+        
+        new_candidates = []
+        for index in range(count):
+            if index in indexes_to_remove:
+                continue
+            candidate, _ = merged_infos[index]
+            new_candidates.append(candidate)
+
+        return new_candidates
