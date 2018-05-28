@@ -51,7 +51,7 @@ class WordImage(OCRImage):
                 horizontal_char_image)
 
             if end_x - start_x > self.MINIMUM_HEIGHT_WIDTH_RATIO * (end_y - start_y):
-                candidates = self._segment_non_connected_chars(
+                candidates = self._segment_connected_components(
                     image, coord_x, coord_y)
                 new_coords.extend(candidates)
             else:
@@ -59,7 +59,7 @@ class WordImage(OCRImage):
 
         return new_coords
 
-    def _segment_non_connected_chars(self, image, char_coord_x, char_coord_y):
+    def _segment_connected_components(self, image, char_coord_x, char_coord_y):
         start_x, end_x = char_coord_x
         start_y, end_y = char_coord_y
         roi_image = image[start_y:end_y, start_x:end_x]
@@ -72,24 +72,24 @@ class WordImage(OCRImage):
         num_labels = output[0]
         # The third cell is the stat matrix
         stats = output[2]
-        # The fourth cell is the centroid matrix
+
+        # Return if there is only a background and one object
         if num_labels <= 2:
             return [char_coord_x]
 
-        print("Original")
         debug_display_image(roi_image)
         # Skip first element, it is background label
         candidates = stats[1:]
+        # The fourth cell is the centroid matrix
         centroids = output[3][1:]
 
         width = end_x - start_x
         # If connected components return almost same image
-        # then it is probably something unseparable, proceeed
+        # then it is probably something unseparable, return back
         threshold_width = 0.95 * width
         too_big_comps = list(
             filter(lambda stat: stat[cv2.CC_STAT_WIDTH] >= threshold_width, candidates))
         if (len(too_big_comps) > 0):
-            print("Ajmee")
             return [char_coord_x]
 
         # Filter out almost the same segments
@@ -104,10 +104,9 @@ class WordImage(OCRImage):
 
         new_peaks = []
         for stat in candidates:
-            print("Separated")
-            blob_start_x = stat[cv2.CC_STAT_LEFT]
+            blob_start_x = start_x + stat[cv2.CC_STAT_LEFT]
             blob_end_x = blob_start_x + stat[cv2.CC_STAT_WIDTH]
-            new_image = roi_image[:, blob_start_x:blob_end_x]
+            new_image = image[:, blob_start_x:blob_end_x]
             debug_display_image(new_image)
             new_peaks.append((blob_start_x, blob_end_x))
 
