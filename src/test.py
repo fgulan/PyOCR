@@ -32,16 +32,18 @@ line_count = 0
 print("Broj linija", len(lines))
 for line in lines:
     line.save("../lines/" + str(line_count) + ".jpg")
-    debug_display_image(line.get_image())
+#     debug_display_image(line.get_image())
     line_count += 1
-    # words = line.get_segments()
+    words = line.get_segments()
 
-    # for word in words:
-    #     # debug_display_image(word.get_image())
-    #     chars = word.get_segments()
-    #     words_count += 1
-    #     for char in chars:
-    #         chars_count += 1
+    for word in words:
+        # debug_display_image(word.get_image())
+        word.save("../words/" + str(words_count) + ".jpg")
+        chars = word.get_segments()
+        words_count += 1
+        for char in chars:
+            char.save("../chars/" + str(chars_count) + ".jpg")
+            chars_count += 1
             # debug_display_image(char.get_image())
 
 print("Rijeci", words_count)

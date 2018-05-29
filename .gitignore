@@ -1,6 +1,10 @@
 
 # Created by https://www.gitignore.io/api/c,c++,java,linux,macos,opencv,windows,eclipse,intellij,visualstudiocode
 
+/chars/
+/words/
+/lines/
+
 ### C ###
 # Prerequisites
 *.d

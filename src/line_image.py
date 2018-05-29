@@ -25,6 +25,7 @@ class LineImage(OCRImage):
         word_coords = self._extract_word_coords(image, spaces)
         word_coords = self._strip_words(word_coords, image)
         self.words = self._map_word_coords_to_object(image, word_coords)
+        
         return self.words
 
     def _strip_words(self, word_coords, image):
@@ -33,13 +34,12 @@ class LineImage(OCRImage):
         for coord in word_coords:
             start_x, end_x = coord
 
-            roi_image = image[:,start_x:end_x]
+            roi_image = image[:,start_x:end_x + 1]
             v_proj = hist.vertical_projection(roi_image)
             x1, x2 = hist.blob_range(v_proj)
             
             new_start_x = start_x + x1
-            # x2 is last index with white pixel
-            new_end_x = start_x + x2 + 1
+            new_end_x = start_x + x2
             
             new_coords.append((new_start_x, new_end_x))
         
@@ -51,26 +51,31 @@ class LineImage(OCRImage):
 
         words = []
         for (start_x, end_x) in word_coords:
-            word_width = end_x - start_x
-            roi_image = image[:,start_x:end_x]
+            word_width = end_x - start_x + 1
+            roi_image = image[:,start_x:end_x + 1]
             word = WordImage(roi_image, word_width, line_height, start_x, start_y)
             words.append(word)
+
         return words
 
     def _extract_word_coords(self, image, spaces):
         _, width = image.shape[:2]
 
         if len(spaces) == 0:
-            return [(0, width)]
+            return [(0, width - 1)]
 
         current_x = 0
         word_coords = []
         for space in spaces:
             space_start_x, space_end_x = space
-            word = (current_x, space_start_x)
+
+            # space_start_x is first whitespace pixel, so first before is background
+            word = (current_x, space_start_x - 1)
             word_coords.append(word)
-            current_x = space_end_x
-        
+
+            # space_end_x is last whitespace pixel, so first next is foreground
+            current_x = space_end_x + 1
+
         if current_x < width - 1:
             word = (current_x, width - 1)
             word_coords.append(word)
@@ -103,6 +108,6 @@ class LineImage(OCRImage):
                 end_x = None
 
         spaces = list(
-            filter(lambda points: points[1] - points[0] >= min_space_len, all_spaces))
+            filter(lambda points: points[1] - points[0] + 1 >= min_space_len, all_spaces))
 
         return spaces

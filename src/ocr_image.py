@@ -38,7 +38,10 @@ class OCRImage:
         return self._width
 
     def get_bounding_box(self):
-        return {'x': self.get_x(), 'y': self.get_y(), 'width': self.get_width(), 'height': self.get_height()}
+        return {'x': self.get_x(),
+                'y': self.get_y(),
+                'width': self.get_width(),
+                'height': self.get_height()}
 
     def get_segments(self):
         image = self.get_image()

@@ -47,15 +47,19 @@ def get_histogram_peaks(hist, spaces):
     size = len(hist)
 
     if len(spaces) == 0:
-        return [(0, size)]
+        return [(0, size - 1)]
 
     current_x = 0
     hist_peaks = []
     for space in spaces:
         space_start_x, space_end_x = space
-        section = (current_x, space_start_x)
+
+        # space_start_x is first whitespace pixel, so first before is background
+        section = (current_x, space_start_x - 1)
         hist_peaks.append(section)
-        current_x = space_end_x
+        
+        # space_end_x is last whitespace pixel, so first next is foreground
+        current_x = space_end_x + 1
 
     if current_x < size - 1:
         section = (current_x, size - 1)
@@ -68,7 +72,8 @@ def filter_histogram_peaks(hist_peaks, threshold):
     new_peaks = []
     
     for start_x, end_x in hist_peaks:
-        if end_x - start_x >= threshold:
+        width = end_x - start_x + 1
+        if width >= threshold:
             new_peaks.append((start_x, end_x))
         
     return new_peaks
@@ -77,8 +82,8 @@ def filter_histogram_peaks(hist_peaks, threshold):
 def get_histogram_peak_means(hist, peaks):
     peaks_mean = []
 
-    for (x1, x2) in peaks:
-        roi_hist = hist[x1:x2]
+    for start_x, end_x in peaks:
+        roi_hist = hist[start_x:(end_x + 1)]
         peak_mean = np.mean(roi_hist)
         peaks_mean.append(peak_mean)
 
