@@ -45,11 +45,13 @@ class WordImage(OCRImage):
 
         for coord_x in char_coords:
             start_x, end_x = coord_x
-            horizontal_char_image = image[:, start_x:end_x]
+            horizontal_char_image = image[:, start_x:end_x + 1]
             coord_y = start_y, end_y = self._get_char_vertical_range(
                 horizontal_char_image)
 
-            if end_x - start_x > self.MINIMUM_HEIGHT_WIDTH_RATIO * (end_y - start_y):
+            width = end_x - start_x + 1
+            height = end_y - start_y + 1
+            if width > self.MINIMUM_HEIGHT_WIDTH_RATIO * height:
                 candidates = self._segment_connected_components(
                     image, coord_x, coord_y)
                 new_coords.extend(candidates)
@@ -61,7 +63,7 @@ class WordImage(OCRImage):
     def _segment_connected_components(self, image, char_coord_x, char_coord_y):
         start_x, end_x = char_coord_x
         start_y, end_y = char_coord_y
-        roi_image = image[start_y:end_y, start_x:end_x]
+        roi_image = image[start_y:end_y + 1, start_x:end_x + 1]
 
         # Perform the operation
         connectivity = 8
@@ -81,7 +83,7 @@ class WordImage(OCRImage):
         # The fourth cell is the centroid matrix
         centroids = output[3][1:]
 
-        width = end_x - start_x
+        width = end_x - start_x + 1
         # If connected components return almost same image
         # then it is probably something unseparable, return back
         threshold_width = 0.95 * width
@@ -103,7 +105,7 @@ class WordImage(OCRImage):
         new_peaks = []
         for stat in candidates:
             blob_start_x = start_x + stat[cv2.CC_STAT_LEFT]
-            blob_end_x = blob_start_x + stat[cv2.CC_STAT_WIDTH]
+            blob_end_x = blob_start_x + stat[cv2.CC_STAT_WIDTH] - 1
             new_peaks.append((blob_start_x, blob_end_x))
 
         return new_peaks
@@ -111,8 +113,7 @@ class WordImage(OCRImage):
     def _get_char_vertical_range(self, image):
         h_proj = hist.horizontal_projection(image)
         start_y, end_y = hist.blob_range(h_proj)
-        # end_y is last index with white pixel
-        return start_y, end_y + 1
+        return start_y, end_y
 
     def _filter_near_segments(self, candidates, centroids):
         indexes_to_remove = set()
@@ -154,10 +155,11 @@ class WordImage(OCRImage):
 
         chars = []
         for (start_x, end_x) in char_coords:
-            char_width = end_x - start_x
-            roi_image = image[:, start_x:end_x]
+            char_width = end_x - start_x + 1
+            roi_image = image[:, start_x:end_x + 1]
             x_offset = word_start_x + start_x
             char = WordImage(roi_image, char_width,
                              char_height, x_offset, start_y)
             chars.append(char)
+            
         return chars
