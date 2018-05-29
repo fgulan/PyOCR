@@ -4,6 +4,8 @@ from ocr_image import OCRImage
 from utils.helpers import debug_plot_array, debug_display_image
 from utils import hist, constants
 from char_image import CharImage
+from skimage.morphology import skeletonize, thin
+from skimage import img_as_ubyte
 
 
 class WordImage(OCRImage):
@@ -11,7 +13,6 @@ class WordImage(OCRImage):
     # https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4457222
     # use 1.1 of width for threshold
     MINIMUM_HEIGHT_WIDTH_RATIO = 1.1
-    BASELINE_CUTOFF_RATIO = 0.85
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
@@ -25,8 +26,7 @@ class WordImage(OCRImage):
         # Remove baseline for easier character segmentation
         median_height = height // (1 + constants.CAP_HEIGHT +
                                    constants.BASELINE_HEIGHT)
-        baseline_height = int(
-            median_height * constants.BASELINE_HEIGHT * self.BASELINE_CUTOFF_RATIO)
+        baseline_height = int(median_height * constants.BASELINE_HEIGHT)
 
         v_proj = hist.vertical_projection(
             image[0:height - baseline_height, :])
@@ -76,6 +76,7 @@ class WordImage(OCRImage):
 
         # Return if there is only a background and one object
         if num_labels <= 2:
+            self._manually_separate_char(char_coord_x, roi_image)
             return [char_coord_x]
 
         # Skip first element, it is background label
@@ -161,5 +162,44 @@ class WordImage(OCRImage):
             char = WordImage(roi_image, char_width,
                              char_height, x_offset, start_y)
             chars.append(char)
-            
+
         return chars
+
+    def _manually_separate_char(self, char_coord_x, roi_image):
+        if self._check_if_char_is_m(roi_image):
+            return [char_coord_x]
+
+        # v_proj = hist.vertical_projection(roi_image)
+        # debug_plot_array(v_proj)
+        return [char_coord_x]
+
+    def _check_if_char_is_m(self, roi_image):
+        height, width = roi_image.shape[:2]
+        thinned = img_as_ubyte(thin(roi_image))
+
+        horizontal_line = thinned[height // 3,:]
+        count = self._foreground_crossings_count(horizontal_line)
+        if count != 3:
+            return False
+
+        horizontal_line = thinned[2 * height // 3,:]
+        count = self._foreground_crossings_count(horizontal_line)
+        if count != 3:
+            return False
+
+        vertical_line = thinned[:, width // 3]
+        count = self._foreground_crossings_count(vertical_line)
+        if count != 2 and count != 1:
+            return False
+
+        vertical_line = thinned[:, 2 * width // 3]
+        count = self._foreground_crossings_count(vertical_line)
+        if count != 2 and count != 1:
+            return False
+
+        return True
+
+    def _foreground_crossings_count(self, values):
+        return np.count_nonzero(values)
+            
+

@@ -8,7 +8,7 @@ from utils.helpers import load_image, debug_display_image, debug_plot_array
 from ocr_image import OCRImage
 from text_image_v2 import TextImageBaseline
 
-input_image = load_image("../data/word.JPG")
+input_image = load_image("../data/uvod.JPG")
 binarizer = otsu.OtsuBinarization()
 binarized_img = binarizer.process(input_image)
 binarized_img = cv2.bitwise_not(binarized_img)
