@@ -11,6 +11,15 @@ def horizontal_projection(image):
 
 
 def blob_range(projection):
+    """Gets first and last index with nonzero value
+    
+    Arguments:
+        projection {array} -- Histogram
+    
+    Returns:
+        (start_index, end_index) -- first and last index with nonzero value
+    """
+    assert len(projection) > 0
     indices = np.nonzero(projection)[0]
     blob = (indices[0], indices[-1]) if len(indices) > 0 else (-1, -1)
     return blob

@@ -104,25 +104,9 @@ class WordImage(OCRImage):
         for stat in candidates:
             blob_start_x = start_x + stat[cv2.CC_STAT_LEFT]
             blob_end_x = blob_start_x + stat[cv2.CC_STAT_WIDTH]
-            new_image = image[:, blob_start_x:blob_end_x]
             new_peaks.append((blob_start_x, blob_end_x))
 
         return new_peaks
-
-    def _map_char_coords_to_object(self, image, char_coords):
-        char_height = self.get_height()
-        start_y = self.get_y()
-        word_start_x = self.get_x()
-
-        chars = []
-        for (start_x, end_x) in char_coords:
-            char_width = end_x - start_x
-            roi_image = image[:, start_x:end_x]
-            x_offset = word_start_x + start_x
-            char = WordImage(roi_image, char_width,
-                             char_height, x_offset, start_y)
-            chars.append(char)
-        return chars
 
     def _get_char_vertical_range(self, image):
         h_proj = hist.horizontal_projection(image)
@@ -162,3 +146,18 @@ class WordImage(OCRImage):
             new_candidates.append(candidate)
 
         return new_candidates
+
+    def _map_char_coords_to_object(self, image, char_coords):
+        char_height = self.get_height()
+        start_y = self.get_y()
+        word_start_x = self.get_x()
+
+        chars = []
+        for (start_x, end_x) in char_coords:
+            char_width = end_x - start_x
+            roi_image = image[:, start_x:end_x]
+            x_offset = word_start_x + start_x
+            char = WordImage(roi_image, char_width,
+                             char_height, x_offset, start_y)
+            chars.append(char)
+        return chars
