@@ -52,7 +52,8 @@ class TextImageBaseline(OCRImage):
             v_proj = hist.vertical_projection(roi)
             x1, x2 = hist.blob_range(v_proj)
             if x1 >= 0 and x2 >= 0:
-                blobs.append((y1, y2, x1, x2))
+                # x2 is last index with white pixel
+                blobs.append((y1, y2, x1, x2 + 1))
 
         return blobs
 

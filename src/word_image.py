@@ -35,13 +35,12 @@ class WordImage(OCRImage):
         hist_spaces = hist.get_histogram_spaces(v_proj_smooth, 0)
         hist_peaks = hist.get_histogram_peaks(v_proj_smooth, hist_spaces)
         hist_peaks = hist.filter_histogram_peaks(hist_peaks, 2)
-        hist_peaks = self._process_joined_characters(
-            image, v_proj_smooth, hist_peaks)
+        hist_peaks = self._process_joined_characters(image, hist_peaks)
         self.characters = self._map_char_coords_to_object(image, hist_peaks)
 
         return self.characters
 
-    def _process_joined_characters(self, image, histogram, char_coords):
+    def _process_joined_characters(self, image, char_coords):
         new_coords = []
 
         for coord_x in char_coords:
@@ -77,7 +76,6 @@ class WordImage(OCRImage):
         if num_labels <= 2:
             return [char_coord_x]
 
-        debug_display_image(roi_image)
         # Skip first element, it is background label
         candidates = stats[1:]
         # The fourth cell is the centroid matrix
@@ -107,7 +105,6 @@ class WordImage(OCRImage):
             blob_start_x = start_x + stat[cv2.CC_STAT_LEFT]
             blob_end_x = blob_start_x + stat[cv2.CC_STAT_WIDTH]
             new_image = image[:, blob_start_x:blob_end_x]
-            debug_display_image(new_image)
             new_peaks.append((blob_start_x, blob_end_x))
 
         return new_peaks
@@ -130,7 +127,8 @@ class WordImage(OCRImage):
     def _get_char_vertical_range(self, image):
         h_proj = hist.horizontal_projection(image)
         start_y, end_y = hist.blob_range(h_proj)
-        return start_y, end_y
+        # end_y is last index with white pixel
+        return start_y, end_y + 1
 
     def _filter_near_segments(self, candidates, centroids):
         indexes_to_remove = set()
@@ -155,7 +153,7 @@ class WordImage(OCRImage):
                 divisor = max(current_centroid_x, next_centroid_x)
                 if dividend/divisor > threshold:
                     indexes_to_remove.add(next_index)
-        
+
         new_candidates = []
         for index in range(count):
             if index in indexes_to_remove:

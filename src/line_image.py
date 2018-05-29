@@ -38,7 +38,8 @@ class LineImage(OCRImage):
             x1, x2 = hist.blob_range(v_proj)
             
             new_start_x = start_x + x1
-            new_end_x = start_x + x2
+            # x2 is last index with white pixel
+            new_end_x = start_x + x2 + 1
             
             new_coords.append((new_start_x, new_end_x))
         

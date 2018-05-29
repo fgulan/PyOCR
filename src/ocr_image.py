@@ -49,6 +49,10 @@ class OCRImage:
         min_x, max_x = hist.blob_range(v_proj)
         min_y, max_y = hist.blob_range(h_proj)
 
+        # max is last index with white pixel so add one to catch the last one
+        max_x += 1
+        max_y += 1
+
         width = max_x - min_x
         height = max_y - min_y
         roi_image = image[min_y:max_y, min_x:max_x]
