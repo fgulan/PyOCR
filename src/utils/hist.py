@@ -93,3 +93,14 @@ def get_histogram_peak_means(hist, peaks):
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0))
     return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+def translate_points(points, delta):
+    
+    translated_points = []
+
+    for start_point, end_point in points:
+        new_start = start_point + delta
+        new_end = end_point + delta
+        translated_points.append((new_start, new_end))
+
+    return translated_points

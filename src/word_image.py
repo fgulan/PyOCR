@@ -65,7 +65,7 @@ class WordImage(OCRImage):
         start_y, end_y = char_coord_y
         roi_image = image[start_y:end_y + 1, start_x:end_x + 1]
 
-        # Perform the operation
+        # Perform the connected components operation
         connectivity = 8
         output = cv2.connectedComponentsWithStats(
             roi_image, connectivity, cv2.CV_32S)
@@ -76,8 +76,8 @@ class WordImage(OCRImage):
 
         # Return if there is only a background and one object
         if num_labels <= 2:
-            self._manually_separate_char(char_coord_x, roi_image)
-            return [char_coord_x]
+            new_coords = self._manually_separate_char(char_coord_x, roi_image)
+            return new_coords
 
         # Skip first element, it is background label
         candidates = stats[1:]
@@ -168,10 +168,17 @@ class WordImage(OCRImage):
     def _manually_separate_char(self, char_coord_x, roi_image):
         if self._check_if_char_is_m(roi_image):
             return [char_coord_x]
+        
+        start_x, _ = char_coord_x
+        v_proj = hist.vertical_projection(roi_image)
 
-        # v_proj = hist.vertical_projection(roi_image)
-        # debug_plot_array(v_proj)
-        return [char_coord_x]
+        hist_spaces = hist.get_histogram_spaces(v_proj, 3)
+        hist_peaks = hist.get_histogram_peaks(v_proj, hist_spaces)
+        hist_peaks = hist.filter_histogram_peaks(hist_peaks, 2)
+
+        hist_peaks = hist.translate_points(hist_peaks, start_x)
+
+        return hist_peaks
 
     def _check_if_char_is_m(self, roi_image):
         height, width = roi_image.shape[:2]
