@@ -9,7 +9,7 @@ from ocr_image import OCRImage
 from text_image_v2 import TextImageBaseline
 import imutils
 
-input_image = load_image("../data/uvod.jpg")
+input_image = load_image("../data/word.jpg")
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
 binarized_img = binarizer.process(input_image)
@@ -43,8 +43,9 @@ for line in lines:
     for word in words:
         # debug_display_image(word.get_image())
         word.save("../words/" + str(words_count) + ".jpg")
-        if words_count == 135:
-            debug_display_image(word.get_image())
+        # if words_count == 135:
+            # chars = word.get_segments(debug=False)
+            # debug_display_image(word.get_image())
         chars = word.get_segments()
         words_count += 1
         for char in chars:

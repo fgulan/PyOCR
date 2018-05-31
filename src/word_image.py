@@ -34,18 +34,21 @@ class WordImage(OCRImage):
 
         hist_spaces = hist.get_histogram_spaces(v_proj_smooth, 0)
         hist_peaks = hist.get_histogram_peaks(v_proj_smooth, hist_spaces)
+
         hist_peaks = hist.filter_histogram_peaks(hist_peaks, 2)
-        hist_peaks = self._process_joined_characters(image, hist_peaks)
+        hist_peaks = self._process_joined_characters(image, hist_peaks, baseline_height)
         self.characters = self._map_char_coords_to_object(image, hist_peaks)
 
         return self.characters
 
-    def _process_joined_characters(self, image, char_coords):
+    def _process_joined_characters(self, image, char_coords, baseline_height):
         new_coords = []
+        # Lets exclude possiblity of overlapping two characters deep down below median
+        baseline_offset = int(0.5 * baseline_height)
 
         for coord_x in char_coords:
             start_x, end_x = coord_x
-            horizontal_char_image = image[:, start_x:end_x + 1]
+            horizontal_char_image = image[0:-baseline_offset, start_x:end_x + 1]
             coord_y = start_y, end_y = self._get_char_vertical_range(
                 horizontal_char_image)
 

@@ -88,6 +88,5 @@ special_letter_to_class = {
     '!': 'special_exclamation',
     '-': 'special_minus',
     '(': 'special_left_bracket',
-    ')': 'special_right_bracket',
-    '"': 'special_quotes'
+    ')': 'special_right_bracket'
 }
