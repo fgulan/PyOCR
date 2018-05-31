@@ -13,7 +13,7 @@ class OCRImage:
         self._image = image
         self._x_offset = x_offset
         self._y_offset = y_offset
-        self._width = x_offset
+        self._width = width
         self._height = height
 
     def save(self, name):
@@ -52,13 +52,9 @@ class OCRImage:
         min_x, max_x = hist.blob_range(v_proj)
         min_y, max_y = hist.blob_range(h_proj)
 
-        # max is last index with white pixel so add one to catch the last one
-        max_x += 1
-        max_y += 1
-
-        width = max_x - min_x
-        height = max_y - min_y
-        roi_image = image[min_y:max_y, min_x:max_x]
+        width = max_x - min_x + 1
+        height = max_y - min_y + 1
+        roi_image = image[min_y:max_y + 1, min_x:max_x + 1]
 
         return roi_image, width, height, min_x, min_y
 

@@ -150,17 +150,24 @@ class WordImage(OCRImage):
         return new_candidates
 
     def _map_char_coords_to_object(self, image, char_coords):
-        char_height = self.get_height()
-        start_y = self.get_y()
+        word_start_y = self.get_y()
         word_start_x = self.get_x()
 
         chars = []
         for (start_x, end_x) in char_coords:
-            char_width = end_x - start_x + 1
-            roi_image = image[:, start_x:end_x + 1]
-            x_offset = word_start_x + start_x
+            vertical_image = image[:, start_x:end_x + 1]
+            
+            box_start_x, box_end_x, box_start_y, box_end_y = self._get_image_bounding_box(vertical_image)
+
+            x_offset = word_start_x + start_x + box_start_x
+            y_offset = word_start_y + box_start_y
+            char_width = box_end_x - box_start_x + 1
+            char_height = box_end_y - box_start_y + 1
+
+            roi_image = vertical_image[box_start_y:box_end_y + 1, box_start_x:box_end_x + 1]
+
             char = WordImage(roi_image, char_width,
-                             char_height, x_offset, start_y)
+                             char_height, x_offset, y_offset)
             chars.append(char)
 
         return chars
@@ -205,6 +212,15 @@ class WordImage(OCRImage):
             return False
 
         return True
+
+    def _get_image_bounding_box(self, image):
+        h_proj = hist.horizontal_projection(image)
+        v_proj = hist.vertical_projection(image)
+
+        min_x, max_x = hist.blob_range(v_proj)
+        min_y, max_y = hist.blob_range(h_proj)
+
+        return min_x, max_x, min_y, max_y
 
     def _foreground_crossings_count(self, values):
         return np.count_nonzero(values)

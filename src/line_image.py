@@ -47,13 +47,16 @@ class LineImage(OCRImage):
 
     def _map_word_coords_to_object(self, image, word_coords):
         line_height = self.get_height()
-        start_y = self.get_y()
+        y_offset = self.get_y()
+        line_start_x = self.get_x()
 
         words = []
         for (start_x, end_x) in word_coords:
+            x_offset = line_start_x + start_x
             word_width = end_x - start_x + 1
+            
             roi_image = image[:,start_x:end_x + 1]
-            word = WordImage(roi_image, word_width, line_height, start_x, start_y)
+            word = WordImage(roi_image, word_width, line_height, x_offset, y_offset)
             words.append(word)
 
         return words
