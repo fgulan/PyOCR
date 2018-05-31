@@ -8,7 +8,7 @@ from utils.helpers import load_image, debug_display_image, debug_plot_array
 from ocr_image import OCRImage
 from text_image_v2 import TextImageBaseline
 
-input_image = load_image("../data/word.jpg")
+input_image = load_image("../data/uvod.jpg")
 binarizer = otsu.OtsuBinarization()
 binarized_img = binarizer.process(input_image)
 binarized_img = cv2.bitwise_not(binarized_img)
@@ -46,8 +46,8 @@ for line in lines:
             chars_count += 1
             # debug_display_image(char.get_image())
 
-print("Rijeci", words_count)
-print("Slova", chars_count)
+print("Broj rijeci", words_count)
+print("Broj slova", chars_count)
 
         # word.save("./out/" + str(index) + ".jpg")
         # debug_display_image(word.get_image())
