@@ -72,8 +72,8 @@ def filter_histogram_peaks(hist_peaks, threshold):
     new_peaks = []
     
     for start_x, end_x in hist_peaks:
-        width = end_x - start_x + 1
-        if width >= threshold:
+        size = end_x - start_x + 1
+        if size >= threshold:
             new_peaks.append((start_x, end_x))
         
     return new_peaks

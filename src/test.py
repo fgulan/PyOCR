@@ -9,7 +9,18 @@ from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
 import imutils
 
+
+def draw_box(image, ocr_image):
+    b_box = ocr_image.get_bounding_box()
+    cv2.rectangle(image, 
+                    (b_box['x'] - 1, b_box['y'] - 1),
+                    (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
+                    (255, 0, 0), 1)
+
 input_image = load_image("../data/uvod.jpg")
+# input_image = load_image("../data/img_0861.jpg")
+# input_image = load_image("../data/calibri_12.jpg")
+
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
 binarized_img = binarizer.process(input_image)
@@ -37,14 +48,12 @@ print("Broj linija", len(lines))
 for line in lines:
     line.save("../lines/" + str(line_count) + ".jpg")
 #     debug_display_image(line.get_image())
-    b_box = line.get_bounding_box()
-    cv2.rectangle(backtorgb, 
-                    (b_box['x'] - 1, b_box['y'] - 1),
-                    (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
-                    (255, 0, 0), 2)
+
     line_count += 1
+    # continue
     words = line.get_segments()
     for word in words:
+        draw_box(backtorgb, word)
         word.save("../words/" + str(words_count) + ".jpg")
         chars = word.get_segments()
         words_count += 1
