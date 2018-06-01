@@ -191,32 +191,6 @@ class TextImageBaseline(OCRImage):
 
         return np.array(padded_lines)
 
-    def _filter_hist_peaks(self, histogram, peaks):
-        peak_means = hist.get_histogram_peak_means(histogram, peaks)
-
-        coords_candidate = []
-        for (coords, mean) in zip(peaks, peak_means):
-            new_coords = self._get_mean_peak_cords(histogram, coords, mean)
-            coords_candidate.extend(new_coords)
-
-        lines = self._filter_lines(coords_candidate)
-
-        return lines
-
-    def _filter_lines(self, lines):
-        line_heights = [y2 - y1 + 1 for (y1, y2) in lines]
-        avg_line_height = sum(line_heights) / len(lines)
-
-        line_height_treshold = avg_line_height * 0.9
-
-        filtered_lines = []
-        for (y1, y2) in lines:
-            line_height = y2 - y1 + 1
-            if line_height >= line_height_treshold:
-                filtered_lines.append((y1, y2))
-
-        return filtered_lines
-
     def _filter_small_lines(self, lines, height_threshold):
         filtered_lines = []
         for (y1, y2) in lines:
