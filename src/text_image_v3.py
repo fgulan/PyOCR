@@ -10,7 +10,7 @@ from utils.helpers import debug_plot_array
 class TextImageBaseline(OCRImage):
 
     AVERAGE_MIN_LINE_HEIGHT_CUTOFF_RATIO = 0.25
-    AVERAGE_MAX_LINE_HEIGHT_CUTOFF_RATIO = 2
+    AVERAGE_MAX_LINE_HEIGHT_CUTOFF_RATIO = 1.5
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
@@ -36,32 +36,60 @@ class TextImageBaseline(OCRImage):
         new_end = max(peak_1_end, peak_2_end)
         return new_start, new_end
 
-    def _join_small_candidates(self, lines, small_line_candidates, avg_line_height):
-        if len(small_line_candidates) == 0 or len(lines) == 0:
-            return lines
-
-        new_lines = list(lines)
-
-        for small_line in small_line_candidates:
-            infos = []
-            
-            for index, line in enumerate(lines):
-                distance = self._min_distance_between_peaks(small_line, line)
-                infos.append((index, distance, small_line))
-
-            line_index, _, small_line_peak = sorted(infos, key=lambda info: info[1])[0]
-            line = new_lines[line_index]
-            new_peak = self._join_peaks(line, small_line_peak)
-            new_lines[line_index] = new_peak
-        
-        return new_lines
-
     def _get_average_lines_height(self, line_peaks):
         line_heights = [y2 - y1 + 1 for (y1, y2) in line_peaks]
         avg_line_height = sum(line_heights) / len(line_peaks)
         return avg_line_height
 
-    def _process_line_candidates(self, line_candidates):
+    def _join_small_candidates(self, lines, small_line_candidates, avg_line_height):
+        if len(small_line_candidates) == 0 or len(lines) == 0:
+            return lines
+        new_lines = list(lines)
+
+        for small_line in small_line_candidates:
+            infos = []
+
+            for index, line in enumerate(lines):
+                distance = self._min_distance_between_peaks(small_line, line)
+                infos.append((index, distance, small_line))
+
+            line_index, _, small_line_peak = sorted(
+                infos, key=lambda info: info[1])[0]
+            line = new_lines[line_index]
+            new_peak = self._join_peaks(line, small_line_peak)
+            new_lines[line_index] = new_peak
+
+        return new_lines
+
+    def _separate_big_candidates(self, lines, big_line_candidates, avg_line_height, h_proj):
+        if len(big_line_candidates) == 0 or len(lines) == 0:
+            return lines
+        new_lines = list(lines)
+        max_index = len(h_proj) - 1
+        
+        # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
+        h_proj_smooth = hist.running_mean(h_proj, 5)
+        new_candidates = []
+        for big_line in big_line_candidates:
+            line_start, line_end = big_line
+            roi_hist = h_proj_smooth[line_start:line_end + 1]
+            roi_mean = np.mean(roi_hist)
+            new_coords = self._get_mean_peak_cords(h_proj_smooth, big_line, roi_mean)
+            new_candidates.extend(new_coords)
+
+        # Filter new candidates
+        new_candidates = self._filter_small_lines(new_candidates, 3)
+        new_candidates = self._include_typography(new_candidates, max_index, avg_line_height)
+
+        # Add new candidates
+        new_lines.extend(new_candidates)
+
+        # Sort new lines
+        new_lines = sorted(new_lines, key=lambda coord: coord[0])
+
+        return new_lines
+
+    def _process_line_candidates(self, line_candidates, h_proj):
         avg_line_candidate_height = self._get_average_lines_height(
             line_candidates)
 
@@ -85,9 +113,14 @@ class TextImageBaseline(OCRImage):
 
         print("Small", small_line_candidates)
         print("Big", big_line_candidates)
+
         new_lines_avg_height = self._get_average_lines_height(new_lines)
+
         new_lines = self._join_small_candidates(
             new_lines, small_line_candidates, new_lines_avg_height)
+        new_lines = self._separate_big_candidates(
+            new_lines, big_line_candidates, new_lines_avg_height, h_proj)
+
         return new_lines
 
     def get_segments(self):
@@ -101,7 +134,8 @@ class TextImageBaseline(OCRImage):
         line_candidates = hist.get_histogram_peaks(h_proj, space_candidates)
 
         # Then filter out all candidates
-        line_candidates = self._process_line_candidates(line_candidates)
+        line_candidates = self._process_line_candidates(
+            line_candidates, h_proj)
         print(len(line_candidates))
 
         # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
@@ -144,10 +178,7 @@ class TextImageBaseline(OCRImage):
 
         return blobs
 
-    def _include_typography(self, lines, image):
-        image_height, _ = image.shape[:2]
-        max_index = image_height - 1
-
+    def _include_typography(self, lines, max_index, avg_line_height):
         padded_lines = []
         for (y1, y2) in lines:
             line_height = y2 - y1 + 1
@@ -182,6 +213,15 @@ class TextImageBaseline(OCRImage):
         for (y1, y2) in lines:
             line_height = y2 - y1 + 1
             if line_height >= line_height_treshold:
+                filtered_lines.append((y1, y2))
+
+        return filtered_lines
+
+    def _filter_small_lines(self, lines, height_threshold):
+        filtered_lines = []
+        for (y1, y2) in lines:
+            line_height = y2 - y1 + 1
+            if line_height > height_threshold:
                 filtered_lines.append((y1, y2))
 
         return filtered_lines

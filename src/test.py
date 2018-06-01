@@ -17,9 +17,10 @@ def draw_box(image, ocr_image):
                     (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
                     (255, 0, 0), 1)
 
-input_image = load_image("../data/uvod.jpg")
+# input_image = load_image("../data/uvod.jpg")
 # input_image = load_image("../data/img_0861.jpg")
 # input_image = load_image("../data/calibri_12.jpg")
+input_image = load_image("../data/tnr_bold.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -52,8 +53,9 @@ for line in lines:
     line_count += 1
     # continue
     words = line.get_segments()
+    draw_box(backtorgb, line)
+    continue
     for word in words:
-        draw_box(backtorgb, word)
         word.save("../words/" + str(words_count) + ".jpg")
         chars = word.get_segments()
         words_count += 1
