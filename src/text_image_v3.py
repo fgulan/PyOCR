@@ -66,7 +66,7 @@ class TextImageBaseline(OCRImage):
             return lines
         new_lines = list(lines)
         max_index = len(h_proj) - 1
-        
+
         # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
         h_proj_smooth = hist.running_mean(h_proj, 5)
         new_candidates = []
@@ -74,13 +74,15 @@ class TextImageBaseline(OCRImage):
             line_start, line_end = big_line
             roi_hist = h_proj_smooth[line_start:line_end + 1]
             roi_mean = np.mean(roi_hist)
-            new_coords = self._get_mean_peak_cords(h_proj_smooth, big_line, roi_mean)
+            new_coords = self._get_mean_peak_cords(
+                h_proj_smooth, big_line, roi_mean)
             new_candidates.extend(new_coords)
 
         # Filter new candidates
         new_candidates = self._filter_small_lines(new_candidates, 3)
         # Include typography since mean peak histogram is cutting it of
-        new_candidates = self._include_typography(new_candidates, max_index, avg_line_height)
+        new_candidates = self._include_typography(
+            new_candidates, max_index, avg_line_height)
 
         # Add new candidates
         new_lines.extend(new_candidates)
@@ -138,7 +140,7 @@ class TextImageBaseline(OCRImage):
         old_line_candidates = line_candidates
         new_line_candidates = self._process_line_candidates(
             old_line_candidates, h_proj)
-            
+
         # Repeat that until there is no more changes or max 3 iterations
         iteration = 0
         while len(new_line_candidates) != len(old_line_candidates) or iteration < 3:
