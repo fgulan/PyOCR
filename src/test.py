@@ -6,7 +6,7 @@ from filters.binarization import otsu, sauvola, adaptive_gauss
 from utils.helpers import load_image, debug_display_image, debug_plot_array
 
 from ocr_image import OCRImage
-from text_image_v2 import TextImageBaseline
+from text_image_v3 import TextImageBaseline
 import imutils
 
 input_image = load_image("../data/uvod.jpg")
