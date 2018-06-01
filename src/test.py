@@ -9,7 +9,7 @@ from ocr_image import OCRImage
 from text_image_v2 import TextImageBaseline
 import imutils
 
-input_image = load_image("../data/word.jpg")
+input_image = load_image("../data/uvod.jpg")
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
 binarized_img = binarizer.process(input_image)
@@ -30,7 +30,6 @@ text_image.save("./out.jpg")
 lines = text_image.get_segments()
 
 
-
 chars_count = 0
 words_count = 0
 line_count = 0
@@ -38,34 +37,23 @@ print("Broj linija", len(lines))
 for line in lines:
     line.save("../lines/" + str(line_count) + ".jpg")
 #     debug_display_image(line.get_image())
+    b_box = line.get_bounding_box()
+    cv2.rectangle(backtorgb, 
+                    (b_box['x'] - 1, b_box['y'] - 1),
+                    (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
+                    (255, 0, 0), 2)
     line_count += 1
     words = line.get_segments()
     for word in words:
-        # debug_display_image(word.get_image())
         word.save("../words/" + str(words_count) + ".jpg")
-        # if words_count == 135:
-            # chars = word.get_segments(debug=False)
-            # debug_display_image(word.get_image())
         chars = word.get_segments()
         words_count += 1
+
         for char in chars:
-
-
-
-            b_box = char.get_bounding_box()
-            cv2.rectangle(backtorgb, 
-                          (b_box['x'] - 1, b_box['y'] - 1),
-                          (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
-                          (255, 0, 0), 2)
             char.save("../chars/" + str(chars_count) + ".jpg")
-
             chars_count += 1
-            # debug_display_image(char.get_image())
-# debug_display_image(backtorgb)
-cv2.imwrite("backtorgb.jpg", backtorgb)
 
 print("Broj rijeci", words_count)
 print("Broj slova", chars_count)
+cv2.imwrite("backtorgb.jpg", backtorgb)
 
-# word.save("./out/" + str(index) + ".jpg")
-# debug_display_image(word.get_image())

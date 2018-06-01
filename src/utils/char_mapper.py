@@ -90,3 +90,10 @@ special_letter_to_class = {
     '(': 'special_left_bracket',
     ')': 'special_right_bracket'
 }
+
+vocab_letter_to_class = {
+    **alphabet_lower_mapper_letter_to_class,
+    **alphabet_upper_mapper_letter_to_class,
+    **number_letter_to_class,
+    **special_letter_to_class
+}
