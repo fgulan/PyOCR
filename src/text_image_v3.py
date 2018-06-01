@@ -79,6 +79,7 @@ class TextImageBaseline(OCRImage):
 
         # Filter new candidates
         new_candidates = self._filter_small_lines(new_candidates, 3)
+        # Include typography since mean peak histogram is cutting it of
         new_candidates = self._include_typography(new_candidates, max_index, avg_line_height)
 
         # Add new candidates
@@ -111,9 +112,6 @@ class TextImageBaseline(OCRImage):
             else:
                 new_lines.append((start_y, end_y))
 
-        print("Small", small_line_candidates)
-        print("Big", big_line_candidates)
-
         new_lines_avg_height = self._get_average_lines_height(new_lines)
 
         new_lines = self._join_small_candidates(
@@ -133,21 +131,23 @@ class TextImageBaseline(OCRImage):
         space_candidates = hist.get_histogram_spaces(h_proj, 0)
         line_candidates = hist.get_histogram_peaks(h_proj, space_candidates)
 
-        # Then filter out all candidates
-        line_candidates = self._process_line_candidates(
-            line_candidates, h_proj)
-        print(len(line_candidates))
+        # Filter really small candidates
+        line_candidates = self._filter_small_lines(line_candidates, 3)
 
-        # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
-        h_proj_smooth = hist.running_mean(h_proj, 5)
-        hist_spaces = hist.get_histogram_spaces(
-            h_proj_smooth, constants.NOISE_PIXELS_THRESHOLD)
-        hist_peaks = hist.get_histogram_peaks(h_proj_smooth, hist_spaces)
+        # Then separate big candidates and join small candidates
+        old_line_candidates = line_candidates
+        new_line_candidates = self._process_line_candidates(
+            old_line_candidates, h_proj)
+            
+        # Repeat that until there is no more changes or max 3 iterations
+        iteration = 0
+        while len(new_line_candidates) != len(old_line_candidates) or iteration < 3:
+            old_line_candidates = new_line_candidates
+            new_line_candidates = self._process_line_candidates(
+                old_line_candidates, h_proj)
+            iteration += 1
 
-        lines = self._filter_hist_peaks(h_proj_smooth, hist_peaks)
-
-        # lines = self._include_typography(lines, image)
-        blobs = self._strip_lines(line_candidates, image)
+        blobs = self._strip_lines(new_line_candidates, image)
         line_images = []
         for (start_y, end_y, start_x, end_x) in blobs:
 

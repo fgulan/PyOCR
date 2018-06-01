@@ -15,12 +15,12 @@ def draw_box(image, ocr_image):
     cv2.rectangle(image, 
                     (b_box['x'] - 1, b_box['y'] - 1),
                     (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
-                    (255, 0, 0), 1)
+                    (255, 0, 0), 2)
 
 # input_image = load_image("../data/uvod.jpg")
 # input_image = load_image("../data/img_0861.jpg")
-# input_image = load_image("../data/calibri_12.jpg")
-input_image = load_image("../data/tnr_bold.jpg")
+input_image = load_image("../data/calibri_12.jpg")
+# input_image = load_image("../data/tnr_bold.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -47,21 +47,15 @@ words_count = 0
 line_count = 0
 print("Broj linija", len(lines))
 for line in lines:
-    line.save("../lines/" + str(line_count) + ".jpg")
-#     debug_display_image(line.get_image())
-
     line_count += 1
-    # continue
     words = line.get_segments()
-    draw_box(backtorgb, line)
-    continue
     for word in words:
-        word.save("../words/" + str(words_count) + ".jpg")
+        
+        draw_box(backtorgb, word)
         chars = word.get_segments()
         words_count += 1
 
         for char in chars:
-            char.save("../chars/" + str(chars_count) + ".jpg")
             chars_count += 1
 
 print("Broj rijeci", words_count)
