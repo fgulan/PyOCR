@@ -15,15 +15,26 @@ def draw_box(image, ocr_image):
     cv2.rectangle(image, 
                     (b_box['x'] - 1, b_box['y'] - 1),
                     (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
-                    (255, 0, 0), 2)
+                    (255, 0, 0), 1)
 
 # input_image = load_image("../data/uvod.jpg")
-# input_image = load_image("../data/img_0861.jpg")
-# input_image = load_image("../data/calibri_12.jpg")
-# input_image = load_image("../data/calibri_12_bold.jpg")
-# input_image = load_image("../data/tnr_12_bold.jpg")
-# input_image = load_image("../data/tnr_12.jpg")
+input_image = load_image("../data/img_0861.jpg")
 # input_image = load_image("../data/word.jpg")
+
+# input_image = load_image("../dataset_docs/calibri_12.jpg")
+# input_image = load_image("../dataset_docs/calibri_12_bold.jpg")
+# input_image = load_image("../dataset_docs/tnr_12_bold.jpg")
+# input_image = load_image("../dataset_docs/tnr_12.jpg")
+# input_image = load_image("../dataset_docs/arial_12.jpg")
+# input_image = load_image("../dataset_docs/arial_12_bold.jpg")
+# input_image = load_image("../dataset_docs/helvetica_12.jpg")
+# input_image = load_image("../dataset_docs/helvetica_12_bold.jpg")
+# input_image = load_image("../dataset_docs/verdana_12.jpg")
+# input_image = load_image("../dataset_docs/verdana_12_bold.jpg")
+# input_image = load_image("../dataset_docs/comic_12.jpg")
+# input_image = load_image("../dataset_docs/comic_12_bold.jpg")
+# input_image = load_image("../dataset_docs/cen_gothic_12.jpg")
+# input_image = load_image("../dataset_docs/cen_gothic_12_bold.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -51,6 +62,7 @@ print("Broj linija", len(lines))
 for line in lines:
     line_count += 1
     words = line.get_segments()
+    # draw_box(backtorgb, line)
     for word in words:
         
         chars = word.get_segments()

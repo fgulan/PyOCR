@@ -9,8 +9,8 @@ from utils.helpers import debug_plot_array
 
 class TextImageBaseline(OCRImage):
 
-    AVERAGE_MIN_LINE_HEIGHT_CUTOFF_RATIO = 0.25
-    AVERAGE_MAX_LINE_HEIGHT_CUTOFF_RATIO = 1.5
+    AVERAGE_MIN_LINE_HEIGHT_CUTOFF_RATIO = 0.3
+    AVERAGE_MAX_LINE_HEIGHT_CUTOFF_RATIO = 1.8
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
@@ -19,16 +19,14 @@ class TextImageBaseline(OCRImage):
 
     def _min_distance_between_peaks(self, peak_1, peak_2):
         peak_1_start, peak_1_end = peak_1
-        peak_2_start, peak_2_end = peak_2
+        peak_2_start, _ = peak_2
 
         top_top_dist = abs(peak_1_start - peak_2_start)
-        top_bottom_dist = abs(peak_1_start - peak_2_end)
         bottom_top_dist = abs(peak_1_end - peak_2_start)
-        bottom_bottom_dist = abs(peak_1_end - peak_2_end)
 
-        return min(top_top_dist, top_bottom_dist, bottom_top_dist, bottom_bottom_dist)
+        return min(top_top_dist, bottom_top_dist)
 
-    def _join_peaks(self, peak_1, peak_2):
+    def _join_top_peaks(self, peak_1, peak_2):
         peak_1_start, peak_1_end = peak_1
         peak_2_start, peak_2_end = peak_2
 
@@ -56,7 +54,7 @@ class TextImageBaseline(OCRImage):
             line_index, _, small_line_peak = sorted(
                 infos, key=lambda info: info[1])[0]
             line = new_lines[line_index]
-            new_peak = self._join_peaks(line, small_line_peak)
+            new_peak = self._join_top_peaks(line, small_line_peak)
             new_lines[line_index] = new_peak
 
         return new_lines
@@ -115,8 +113,12 @@ class TextImageBaseline(OCRImage):
             else:
                 new_lines.append((start_y, end_y))
 
-        new_lines_avg_height = self._get_average_lines_height(new_lines)
+        if len(new_lines) > 0:
+            new_lines_avg_height = self._get_average_lines_height(new_lines)
+        else:
+            new_lines_avg_height = avg_line_candidate_height
 
+        # Join small lines (they are mostly top lines with diacritics)
         new_lines = self._join_small_candidates(
             new_lines, small_line_candidates, new_lines_avg_height)
         new_lines = self._separate_big_candidates(
@@ -144,10 +146,14 @@ class TextImageBaseline(OCRImage):
 
         # Repeat that until there is no more changes or max 3 iterations
         iteration = 0
-        while len(new_line_candidates) != len(old_line_candidates) or iteration < 3:
+        while iteration < 3:
             old_line_candidates = new_line_candidates
             new_line_candidates = self._process_line_candidates(
                 old_line_candidates, h_proj)
+
+            if len(new_line_candidates) == len(old_line_candidates):
+                break
+
             iteration += 1
 
         blobs = self._strip_lines(new_line_candidates, image)

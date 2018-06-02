@@ -35,16 +35,20 @@ def process_text_file(file_path):
     return lines
 
 def get_words(file_line):
-    return file_line.split(" ")
+    words = file_line.split(" ")
+    words = list(map(lambda text: text.strip(), words))
+    words = list(filter(None, words))
+    return words
 
 def process_words(ocr_words, file_words):
-    print("fds")
     for index, (ocr_word, file_word) in enumerate(zip(ocr_words, file_words)):
         ocr_chars = ocr_word.get_segments()
         file_chars = list(file_word)
 
         if len(ocr_chars) != len(file_chars):
+
             print("Neispravan broj znakova u rijeci: " + file_word)
+            print("ocr_chars:", len(ocr_chars), "file_chars", len(file_chars))
             continue
 
 
@@ -65,6 +69,7 @@ def process(args):
         if len(ocr_words) == len(file_words):
             process_words(ocr_words, file_words)
         else:
+            import pdb; pdb.set_trace()
             print("Neispravan broj rijeci na liniji " + str(index + 1))
             continue
 

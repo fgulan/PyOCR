@@ -82,6 +82,8 @@ class WordImage(OCRImage):
         # If connected components return almost same image
         # then it is probably something unseparable like
         # croatian letter with diacritics or i or j ...
+
+        # TODO: To sensitive to thin characters
         threshold_width = 0.9 * width
         too_big_comps = list(
             filter(lambda stat: stat[cv2.CC_STAT_WIDTH] >= threshold_width, candidates))
@@ -115,7 +117,9 @@ class WordImage(OCRImage):
         indexes_to_remove = set()
         count = len(candidates)
         merged_infos = zip(candidates, centroids)
-        threshold = 0.9
+        
+        threshold_ratio = 0.9
+
         # Sort candidates/centroids by area (biggest first) so that smallest ones
         # are filtered if centroids are on the same x position
         merged_infos = sorted(
@@ -127,7 +131,12 @@ class WordImage(OCRImage):
             if index in indexes_to_remove:
                 continue
 
-            _, (current_centroid_x, _) = merged_infos[index]
+            current_stat, (current_centroid_x, _) = merged_infos[index]
+            c_width = current_stat[cv2.CC_STAT_WIDTH]
+            c_height = current_stat[cv2.CC_STAT_HEIGHT]
+            vertical_ratio = c_width/c_height
+
+
             for next_index in range(index + 1, count):
                 _, (next_centroid_x, _) = merged_infos[next_index]
 
@@ -135,6 +144,7 @@ class WordImage(OCRImage):
                 dividend = min(current_centroid_x, next_centroid_x) + 1
                 divisor = max(current_centroid_x, next_centroid_x) + 1
                 
+                threshold = min(threshold_ratio, threshold_ratio * vertical_ratio)
                 if dividend/divisor > threshold:
                     indexes_to_remove.add(next_index)
 
