@@ -19,8 +19,10 @@ def draw_box(image, ocr_image):
 
 # input_image = load_image("../data/uvod.jpg")
 # input_image = load_image("../data/img_0861.jpg")
-input_image = load_image("../data/calibri_12.jpg")
-# input_image = load_image("../data/tnr_bold.jpg")
+# input_image = load_image("../data/calibri_12.jpg")
+# input_image = load_image("../data/calibri_12_bold.jpg")
+# input_image = load_image("../data/tnr_12_bold.jpg")
+# input_image = load_image("../data/tnr_12.jpg")
 # input_image = load_image("../data/word.jpg")
 
 orig_image = input_image.copy()
@@ -51,11 +53,11 @@ for line in lines:
     words = line.get_segments()
     for word in words:
         
-        draw_box(backtorgb, word)
         chars = word.get_segments()
         words_count += 1
-
+        # draw_box(backtorgb, word)
         for char in chars:
+            draw_box(backtorgb, char)
             chars_count += 1
 
 print("Broj rijeci", words_count)

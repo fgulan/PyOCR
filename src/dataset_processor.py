@@ -7,7 +7,7 @@ from filters.binarization import otsu
 from utils.helpers import load_image, debug_display_image, debug_plot_array
 
 from ocr_image import OCRImage
-from text_image_v2 import TextImageBaseline
+from text_image_v3 import TextImageBaseline
 import imutils
 
 def process_image(image_path):
@@ -16,27 +16,59 @@ def process_image(image_path):
     binarizer = otsu.OtsuBinarization()
     binarized_img = binarizer.process(input_image)
     binarized_img = cv2.bitwise_not(binarized_img)
-    
+
     denoiser = NoiseRemoval()
-    binarized_img = denoiser.process(binarized_img)
-    
+    input_image = denoiser.process(binarized_img)
+
     height, width = input_image.shape[:2]
     ocr_image = OCRImage(input_image, width, height)
     ocr_image.fix_skew()
 
     roi_image, width, height, min_x, min_y = ocr_image.get_segments()
     text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
-
     return text_image
 
 def process_text_file(file_path):
+    lines = []
     with open(file_path) as text_file:
         lines = text_file.read().splitlines()
-    print(lines)
+    return lines
+
+def get_words(file_line):
+    return file_line.split(" ")
+
+def process_words(ocr_words, file_words):
+    print("fds")
+    for index, (ocr_word, file_word) in enumerate(zip(ocr_words, file_words)):
+        ocr_chars = ocr_word.get_segments()
+        file_chars = list(file_word)
+
+        if len(ocr_chars) != len(file_chars):
+            print("Neispravan broj znakova u rijeci: " + file_word)
+            continue
+
+
 
 def process(args):
-    process_text_file(args.text_file)
-    
+    file_lines = process_text_file(args.text_file)
+    text_image = process_image(args.image)
+
+    text_lines = text_image.get_segments()
+    if len(text_lines) != len(file_lines):
+        print("Neispravan broj linija!")
+        return
+
+    for index, (ocr_line, file_line) in enumerate(zip(text_lines, file_lines)):        
+        ocr_words = ocr_line.get_segments()
+        file_words = get_words(file_line)
+
+        if len(ocr_words) == len(file_words):
+            process_words(ocr_words, file_words)
+        else:
+            print("Neispravan broj rijeci na liniji " + str(index + 1))
+            continue
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -44,7 +76,7 @@ def main():
     parser.add_argument(
         '--text-file', help="Input text file", required=True, type=str)
     parser.add_argument(
-        '--output-folder', help="Input image is grayscale", required=True, type=str)
+        '--output', help="Input image is grayscale", required=True, type=str)
     args = parser.parse_args()
     process(args)
 

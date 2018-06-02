@@ -11,8 +11,8 @@ from skimage import img_as_ubyte
 class WordImage(OCRImage):
 
     # https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4457222
-    # use 1.1 of width for threshold
-    MINIMUM_HEIGHT_WIDTH_RATIO = 1.1
+    # use 1.5 of width for threshold
+    MINIMUM_HEIGHT_WIDTH_RATIO = 1.5
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
@@ -21,51 +21,36 @@ class WordImage(OCRImage):
 
     def get_segments(self):
         image = self.get_image()
-        height, _ = image.shape[:2]
 
-        # Remove baseline for easier character segmentation
-        median_height = height // (1 + constants.CAP_HEIGHT +
-                                   constants.BASELINE_HEIGHT)
-        baseline_height = int(median_height * constants.BASELINE_HEIGHT)
+        v_proj = hist.vertical_projection(image)
 
-        v_proj = hist.vertical_projection(
-            image[0:height - baseline_height, :])
-        v_proj_smooth = v_proj  # hist.running_mean(v_proj, 3)
+        # First, get prefectly separable blobs
+        hist_spaces = hist.get_histogram_spaces(v_proj, 0)
+        hist_peaks = hist.get_histogram_peaks(v_proj, hist_spaces)
 
-        hist_spaces = hist.get_histogram_spaces(v_proj_smooth, 0)
-        hist_peaks = hist.get_histogram_peaks(v_proj_smooth, hist_spaces)
-
+        # Then, filter out all small noise segments
         hist_peaks = hist.filter_histogram_peaks(hist_peaks, 2)
-        hist_peaks = self._process_joined_characters(image, hist_peaks, baseline_height)
+
+        # Check each segmented component for joined characters
+        hist_peaks = self._process_joined_characters(image, hist_peaks)
+
+        # Map peaks to char image
         self.characters = self._map_char_coords_to_object(image, hist_peaks)
 
         return self.characters
 
-    def _process_joined_characters(self, image, char_coords, baseline_height):
+    def _process_joined_characters(self, image, char_coords):
         new_coords = []
-        # Lets exclude possiblity of overlapping two characters deep down below median
-        baseline_offset = int(0.5 * baseline_height)
 
         for coord_x in char_coords:
-            start_x, end_x = coord_x
-            horizontal_char_image = image[0:-baseline_offset, start_x:end_x + 1]
-            coord_y = start_y, end_y = self._get_char_vertical_range(
-                horizontal_char_image)
-
-            width = end_x - start_x + 1
-            height = end_y - start_y + 1
-            if width > self.MINIMUM_HEIGHT_WIDTH_RATIO * height:
-                candidates = self._segment_connected_components(
-                    image, coord_x, coord_y)
-                new_coords.extend(candidates)
-            else:
-                new_coords.append(coord_x)
-
+            candidates = self._segment_connected_components(image, coord_x)
+            new_coords.extend(candidates)
         return new_coords
 
-    def _segment_connected_components(self, image, char_coord_x, char_coord_y):
+    def _segment_connected_components(self, image, char_coord_x):
         start_x, end_x = char_coord_x
-        start_y, end_y = char_coord_y
+        start_y, end_y = self._get_y_bounding_range(image, char_coord_x)
+
         roi_image = image[start_y:end_y + 1, start_x:end_x + 1]
 
         # Perform the connected components operation
@@ -79,7 +64,13 @@ class WordImage(OCRImage):
 
         # Return if there is only a background and one object
         if num_labels <= 2:
-            new_coords = self._manually_separate_char(char_coord_x, roi_image)
+            roi_width = end_x - start_x + 1
+            roi_height = end_y - start_y + 1
+            new_coords = [char_coord_x]
+
+            if roi_width > self.MINIMUM_HEIGHT_WIDTH_RATIO * roi_height:
+                new_coords = self._manually_separate_char(char_coord_x, roi_image)
+
             return new_coords
 
         # Skip first element, it is background label
@@ -89,8 +80,9 @@ class WordImage(OCRImage):
 
         width = end_x - start_x + 1
         # If connected components return almost same image
-        # then it is probably something unseparable, return back
-        threshold_width = 0.95 * width
+        # then it is probably something unseparable like
+        # croatian letter with diacritics or i or j ...
+        threshold_width = 0.9 * width
         too_big_comps = list(
             filter(lambda stat: stat[cv2.CC_STAT_WIDTH] >= threshold_width, candidates))
         if (len(too_big_comps) > 0):
@@ -138,8 +130,11 @@ class WordImage(OCRImage):
             _, (current_centroid_x, _) = merged_infos[index]
             for next_index in range(index + 1, count):
                 _, (next_centroid_x, _) = merged_infos[next_index]
-                dividend = min(current_centroid_x, next_centroid_x)
-                divisor = max(current_centroid_x, next_centroid_x)
+
+                # Append 1 for numerical stabiltiy (when centroids are in zero)
+                dividend = min(current_centroid_x, next_centroid_x) + 1
+                divisor = max(current_centroid_x, next_centroid_x) + 1
+                
                 if dividend/divisor > threshold:
                     indexes_to_remove.add(next_index)
 
@@ -159,15 +154,17 @@ class WordImage(OCRImage):
         chars = []
         for (start_x, end_x) in char_coords:
             vertical_image = image[:, start_x:end_x + 1]
-            
-            box_start_x, box_end_x, box_start_y, box_end_y = self._get_image_bounding_box(vertical_image)
+
+            box_start_x, box_end_x, box_start_y, box_end_y = self._get_image_bounding_box(
+                vertical_image)
 
             x_offset = word_start_x + start_x + box_start_x
             y_offset = word_start_y + box_start_y
             char_width = box_end_x - box_start_x + 1
             char_height = box_end_y - box_start_y + 1
 
-            roi_image = vertical_image[box_start_y:box_end_y + 1, box_start_x:box_end_x + 1]
+            roi_image = vertical_image[box_start_y:box_end_y +
+                                       1, box_start_x:box_end_x + 1]
 
             char = WordImage(roi_image, char_width,
                              char_height, x_offset, y_offset)
@@ -178,7 +175,7 @@ class WordImage(OCRImage):
     def _manually_separate_char(self, char_coord_x, roi_image):
         if self._check_if_char_is_m(roi_image):
             return [char_coord_x]
-        
+
         start_x, _ = char_coord_x
         v_proj = hist.vertical_projection(roi_image)
 
@@ -194,12 +191,12 @@ class WordImage(OCRImage):
         height, width = roi_image.shape[:2]
         thinned = img_as_ubyte(thin(roi_image))
 
-        horizontal_line = thinned[height // 3,:]
+        horizontal_line = thinned[height // 3, :]
         count = self._foreground_crossings_count(horizontal_line)
         if count != 3:
             return False
 
-        horizontal_line = thinned[2 * height // 3,:]
+        horizontal_line = thinned[2 * height // 3, :]
         count = self._foreground_crossings_count(horizontal_line)
         if count != 3:
             return False
@@ -227,5 +224,10 @@ class WordImage(OCRImage):
 
     def _foreground_crossings_count(self, values):
         return np.count_nonzero(values)
-            
+
+    def _get_y_bounding_range(self, image, char_coord_x):
+        start_x, end_x = char_coord_x
+        horizontal_char_image = image[:, start_x:end_x + 1]
+        char_coord_y = self._get_char_vertical_range(horizontal_char_image)
+        return char_coord_y
 
