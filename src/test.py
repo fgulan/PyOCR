@@ -17,10 +17,11 @@ def draw_box(image, ocr_image):
                     (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
                     (255, 0, 0), 2)
 
-input_image = load_image("../data/uvod.jpg")
+# input_image = load_image("../data/uvod.jpg")
 # input_image = load_image("../data/img_0861.jpg")
-# input_image = load_image("../data/calibri_12.jpg")
+input_image = load_image("../data/calibri_12.jpg")
 # input_image = load_image("../data/tnr_bold.jpg")
+# input_image = load_image("../data/word.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -38,7 +39,6 @@ backtorgb = cv2.cvtColor(rotated, cv2.COLOR_GRAY2RGB)
 roi_image, width, height, min_x, min_y = ocr_image.get_segments()
 print(width, height)
 text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
-text_image.save("./out.jpg")
 lines = text_image.get_segments()
 
 

@@ -64,6 +64,7 @@ class TextImageBaseline(OCRImage):
     def _separate_big_candidates(self, lines, big_line_candidates, avg_line_height, h_proj):
         if len(big_line_candidates) == 0 or len(lines) == 0:
             return lines
+            
         new_lines = list(lines)
         max_index = len(h_proj) - 1
 
