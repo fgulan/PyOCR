@@ -18,10 +18,10 @@ def draw_box(image, ocr_image):
                     (255, 0, 0), 1)
 
 # input_image = load_image("../data/uvod.jpg")
-input_image = load_image("../data/img_0861.jpg")
+# input_image = load_image("../data/img_0861.jpg")
 # input_image = load_image("../data/word.jpg")
 
-# input_image = load_image("../dataset_docs/calibri_12.jpg")
+input_image = load_image("../dataset_docs/calibri_12.jpg")
 # input_image = load_image("../dataset_docs/calibri_12_bold.jpg")
 # input_image = load_image("../dataset_docs/tnr_12_bold.jpg")
 # input_image = load_image("../dataset_docs/tnr_12.jpg")
