@@ -21,7 +21,7 @@ def draw_box(image, ocr_image):
 # input_image = load_image("../data/img_0861.jpg")
 # input_image = load_image("../data/word.jpg")
 
-input_image = load_image("../dataset_docs/calibri_12.jpg")
+# input_image = load_image("../dataset_docs/calibri_12.jpg")
 # input_image = load_image("../dataset_docs/calibri_12_bold.jpg")
 # input_image = load_image("../dataset_docs/tnr_12_bold.jpg")
 # input_image = load_image("../dataset_docs/tnr_12.jpg")
@@ -29,7 +29,7 @@ input_image = load_image("../dataset_docs/calibri_12.jpg")
 # input_image = load_image("../dataset_docs/arial_12_bold.jpg")
 # input_image = load_image("../dataset_docs/helvetica_12.jpg")
 # input_image = load_image("../dataset_docs/helvetica_12_bold.jpg")
-# input_image = load_image("../dataset_docs/verdana_12.jpg")
+input_image = load_image("../dataset_docs/verdana_12.jpg")
 # input_image = load_image("../dataset_docs/verdana_12_bold.jpg")
 # input_image = load_image("../dataset_docs/comic_12.jpg")
 # input_image = load_image("../dataset_docs/comic_12_bold.jpg")
@@ -67,9 +67,9 @@ for line in lines:
         
         chars = word.get_segments()
         words_count += 1
-        # draw_box(backtorgb, word)
+        draw_box(backtorgb, word)
         for char in chars:
-            draw_box(backtorgb, char)
+            # draw_box(backtorgb, char)
             chars_count += 1
 
 print("Broj rijeci", words_count)

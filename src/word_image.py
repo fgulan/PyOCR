@@ -176,7 +176,7 @@ class WordImage(OCRImage):
             roi_image = vertical_image[box_start_y:box_end_y +
                                        1, box_start_x:box_end_x + 1]
 
-            char = WordImage(roi_image, char_width,
+            char = CharImage(roi_image, char_width,
                              char_height, x_offset, y_offset)
             chars.append(char)
 

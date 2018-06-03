@@ -4,6 +4,8 @@
 /chars/
 /words/
 /lines/
+/dataset/
+/dataset_joined/
 
 ### C ###
 # Prerequisites
