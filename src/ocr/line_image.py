@@ -11,7 +11,6 @@ class LineImage(OCRImage):
     SPACE_NOISE_THRESHOLD = 2
     BASELINE_DISTANCE_RATIO = 0.15
     # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
-    SPACE_DISTANCE_RATIO = 5
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
@@ -88,7 +87,7 @@ class LineImage(OCRImage):
     def _get_word_spaces(self, image):
         height, _ = image.shape[:2]
 
-        # Lets ignore everything below baseline in histogram calcualtion
+        # Lets ignore everything below baseline in histogram calculation
         # so it won't create non space issues
         offset = height * self.BASELINE_DISTANCE_RATIO
         start_y = 0

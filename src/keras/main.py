@@ -31,7 +31,7 @@ def get_callbacks():
     weights_file = os.path.join(
         "weights", "weights_ep_{epoch:02d}_{val_acc:.5f}.hd5f")
     callbacks.append(ModelCheckpoint(weights_file, monitor='val_acc', verbose=1,
-                                     save_best_only=True, mode='max'))
+                                     save_best_only=True, mode='max', save_weights_only=True))
 
     callbacks.append(ReduceLROnPlateau(monitor='val_loss',
                                        factor=0.3, patience=10, min_lr=MIN_LR))
@@ -48,6 +48,9 @@ def main():
     predictions, inputs = OCRModel((*INPUT_SIZE, NUM_CHANNELS), NUM_CLASSES)
     # this is the model we will train
     model = Model(inputs=inputs, outputs=predictions)
+    # save as JSON
+    with open('model.json', 'a') as output_file:
+        output_file.write(model.to_json())
     print(model.summary())
 
     # Create data generators

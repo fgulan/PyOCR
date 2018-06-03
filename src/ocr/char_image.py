@@ -29,7 +29,7 @@ class CharImage(OCRImage):
         top, bottom = delta_h//2, delta_h-(delta_h//2)
         left, right = delta_w//2, delta_w-(delta_w//2)
 
-        new_image = cv2.copyMakeBorder(image, top, bottom, left, right,
+        new_image = cv2.copyMakeBorder(new_image, top, bottom, left, right,
                                        cv2.BORDER_CONSTANT, value=0)
         return new_image
 

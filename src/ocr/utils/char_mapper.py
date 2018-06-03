@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-  
+# -*- coding: utf-8 -*-
 
 alphabet_upper_mapper_letter_to_class = {
     'A': 'upper_a',
@@ -95,6 +95,32 @@ special_letter_to_class = {
     ')': 'special_right_bracket'
 }
 
+classifier_out_to_class = {
+    0: 'lower_a', 1: 'lower_b', 2: 'lower_d', 
+    3: 'lower_d1', 4: 'lower_e', 5: 'lower_f', 
+    6: 'lower_g', 7: 'lower_h', 8: 'lower_i', 
+    9: 'lower_j', 10: 'lower_k', 11: 'lower_l', 
+    12: 'lower_m', 13: 'lower_n', 14: 'lower_p', 
+    15: 'lower_q', 16: 'lower_r', 17: 'lower_t', 
+    18: 'lower_u', 19: 'number_0', 20: 'number_1', 
+    21: 'number_2', 22: 'number_3', 23: 'number_4', 
+    24: 'number_5', 25: 'number_6', 26: 'number_7', 
+    27: 'number_8', 28: 'number_9', 29: 'special_comma',
+    30: 'special_dot', 31: 'special_exclamation', 
+    32: 'special_left_bracket', 33: 'special_minus', 
+    34: 'special_question', 35: 'special_right_bracket', 
+    36: 'unique_c', 37: 'unique_c1', 38: 'unique_c2', 
+    39: 'unique_o', 40: 'unique_s', 41: 'unique_s1', 
+    42: 'unique_v', 43: 'unique_w', 44: 'unique_x', 
+    45: 'unique_y', 46: 'unique_z', 47: 'unique_z1', 
+    48: 'upper_a', 49: 'upper_b', 50: 'upper_d', 
+    51: 'upper_d1', 52: 'upper_e', 53: 'upper_f', 
+    54: 'upper_g', 55: 'upper_h', 56: 'upper_i', 
+    57: 'upper_j', 58: 'upper_k', 59: 'upper_l', 
+    60: 'upper_m', 61: 'upper_n', 62: 'upper_p', 
+    63: 'upper_q', 64: 'upper_r', 65: 'upper_t',
+    66: 'upper_u'}
+
 vocab_letter_to_class = {
     **alphabet_lower_mapper_letter_to_class,
     **alphabet_upper_mapper_letter_to_class,
@@ -102,3 +128,9 @@ vocab_letter_to_class = {
     **special_letter_to_class,
     **unique_letter_to_class
 }
+
+class_to_vocab_letter = {v: k for k, v in vocab_letter_to_class.items()}
+
+def classifier_out_to_vocab_letter(index):
+    class_letter = classifier_out_to_class[index]
+    return class_to_vocab_letter[class_letter]
