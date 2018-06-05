@@ -51,9 +51,9 @@ def get_words(file_line):
     return words
 
 
-def process_chars(ocr_chars, file_chars, root_output_folder):
+def process_chars(ocr_chars, file_chars, root_output_folder, avg_line_height):
     for ocr_char, file_char in zip(ocr_chars, file_chars):
-        scaled_image = ocr_char.get_scaled_image()
+        scaled_image = ocr_char.get_scaled_image(avg_line_height)
 
         file_name = str(uuid.uuid4()) + ".jpg"
         letter_class = vocab_letter_to_class[file_char]
@@ -63,7 +63,7 @@ def process_chars(ocr_chars, file_chars, root_output_folder):
         cv2.imwrite(output_file, scaled_image)
 
 
-def process_words(ocr_words, file_words, root_output_folder, line_index):
+def process_words(ocr_words, file_words, root_output_folder, line_index, avg_line_height):
     for ocr_word, file_word in zip(ocr_words, file_words):
         ocr_chars = ocr_word.get_segments()
         file_chars = list(file_word)
@@ -77,25 +77,29 @@ def process_words(ocr_words, file_words, root_output_folder, line_index):
             ocr_word.save(output_path)
             continue
 
-        process_chars(ocr_chars, file_chars, root_output_folder)
+        process_chars(ocr_chars, file_chars, root_output_folder, avg_line_height)
 
 
 def process(args):
     file_lines = process_text_file(args.text_file)
     text_image = process_image(args.image)
 
-    import pdb; pdb.set_trace()
     text_lines = text_image.get_segments()
     if len(text_lines) != len(file_lines):
         print("Neispravan broj linija!")
         return
 
+    avg_line_height = 0
+    for line in text_lines:
+        avg_line_height += line.get_height()
+    avg_line_height /= len(text_lines)
+    print(avg_line_height)
     for index, (ocr_line, file_line) in enumerate(zip(text_lines, file_lines)):
         ocr_words = ocr_line.get_segments()
         file_words = get_words(file_line)
 
         if len(ocr_words) == len(file_words):
-            process_words(ocr_words, file_words, args.output, index)
+            process_words(ocr_words, file_words, args.output, index, avg_line_height)
         else:
             print("Neispravan broj rijeci na liniji " + str(index + 1))
             continue
