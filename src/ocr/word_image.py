@@ -75,8 +75,6 @@ class WordImage(OCRImage):
 
         # Skip first element, it is background label
         candidates = stats[1:]
-        # The fourth cell is the centroid matrix
-        centroids = output[3][1:]
 
         width = end_x - start_x + 1
         # If connected components return almost same image
@@ -91,7 +89,7 @@ class WordImage(OCRImage):
             return [char_coord_x]
 
         # Filter out almost the same segments
-        candidates = self._filter_near_segments(candidates, centroids)
+        candidates = self._filter_near_segments(candidates)
 
         # Sort them by start_x value
         candidates = sorted(
@@ -101,6 +99,7 @@ class WordImage(OCRImage):
             filter(lambda stat: stat[cv2.CC_STAT_WIDTH] > 4, candidates))
 
         new_peaks = []
+        
         for stat in candidates:
             blob_start_x = start_x + stat[cv2.CC_STAT_LEFT]
             blob_end_x = blob_start_x + stat[cv2.CC_STAT_WIDTH] - 1
@@ -113,46 +112,51 @@ class WordImage(OCRImage):
         start_y, end_y = hist.blob_range(h_proj)
         return start_y, end_y
 
-    def _filter_near_segments(self, candidates, centroids):
-        indexes_to_remove = set()
-        count = len(candidates)
-        merged_infos = zip(candidates, centroids)
-        
-        threshold_ratio = 0.9
+    def _filter_near_segments(self, candidates):
 
-        # Sort candidates/centroids by area (biggest first) so that smallest ones
+        def overlap_length(min1, max1, min2, max2):
+            return max(0, min(max1, max2) - max(min1, min2))
+        
+        def shortest_width(stat1, stat2):
+            return min(stat1[cv2.CC_STAT_WIDTH], stat2[cv2.CC_STAT_WIDTH])
+
+        def segment_position(stat):
+            start_x = stat[cv2.CC_STAT_LEFT]
+            end_x = start_x + stat[cv2.CC_STAT_WIDTH]
+            return (start_x, end_x)
+
+        indexes_to_remove = set()
+        count = len(candidates)        
+        threshold = 0.75
+
+        # Sort candidates by area (biggest first) so that smallest ones
         # are filtered if centroids are on the same x position
-        merged_infos = sorted(
-            merged_infos, key=lambda info: info[0][cv2.CC_STAT_AREA], reverse=True)
+        candidates = sorted(
+            candidates, key=lambda info: info[cv2.CC_STAT_AREA], reverse=True)
 
         for index in range(count - 1):
-
             # Skip current index if it is stored to be removed
             if index in indexes_to_remove:
                 continue
 
-            current_stat, (current_centroid_x, _) = merged_infos[index]
-            c_width = current_stat[cv2.CC_STAT_WIDTH]
-            c_height = current_stat[cv2.CC_STAT_HEIGHT]
-            vertical_ratio = c_width/c_height
-
+            current_stat = candidates[index]
+            current_position = segment_position(current_stat)
 
             for next_index in range(index + 1, count):
-                _, (next_centroid_x, _) = merged_infos[next_index]
+                next_stat = candidates[next_index]
+                next_position = segment_position(next_stat)
 
-                # Append 1 for numerical stabiltiy (when centroids are in zero)
-                dividend = min(current_centroid_x, next_centroid_x) + 1
-                divisor = max(current_centroid_x, next_centroid_x) + 1
-                
-                threshold = min(threshold_ratio, threshold_ratio * vertical_ratio)
-                if dividend/divisor > threshold:
+                # Append 1 for numerical stabiltiy (when overlaps are in zero)
+                overlap = overlap_length(*current_position, *next_position) + 1
+                min_width = shortest_width(current_stat, next_stat) + 1
+                if overlap / min_width > threshold:
                     indexes_to_remove.add(next_index)
 
         new_candidates = []
         for index in range(count):
             if index in indexes_to_remove:
                 continue
-            candidate, _ = merged_infos[index]
+            candidate = candidates[index]
             new_candidates.append(candidate)
 
         return new_candidates
@@ -182,19 +186,27 @@ class WordImage(OCRImage):
 
         return chars
 
+
     def _manually_separate_char(self, char_coord_x, roi_image):
         if self._check_if_char_is_m(roi_image):
             return [char_coord_x]
+        elif self._check_if_char_is_minus_sign(roi_image):
+            return [char_coord_x]
 
         start_x, _ = char_coord_x
-        v_proj = hist.vertical_projection(roi_image)
+        height, _ = roi_image.shape[:2]
+        # Remove cap part to remove possiblity of upper overlaping
+        cap_start_index = int(0.15 * height)
+        v_proj = hist.vertical_projection(roi_image[cap_start_index:,:])
 
-        hist_spaces = hist.get_histogram_spaces(v_proj, 3)
+        hist_spaces = hist.get_histogram_spaces(v_proj, 0)
         hist_peaks = hist.get_histogram_peaks(v_proj, hist_spaces)
         hist_peaks = hist.filter_histogram_peaks(hist_peaks, 2)
 
+        if len(hist_peaks) == 1:
+            return [char_coord_x]
+        
         hist_peaks = hist.translate_points(hist_peaks, start_x)
-
         return hist_peaks
 
     def _check_if_char_is_m(self, roi_image):
@@ -219,6 +231,16 @@ class WordImage(OCRImage):
         vertical_line = thinned[:, 2 * width // 3]
         count = self._foreground_crossings_count(vertical_line)
         if count != 2 and count != 1:
+            return False
+
+        return True
+    
+    def _check_if_char_is_minus_sign(self, roi_image):
+        height, width = roi_image.shape[:2]
+        horizontal_line = roi_image[height // 2, :]
+
+        white_count = np.count_nonzero(horizontal_line)
+        if white_count / width < 0.8:
             return False
 
         return True

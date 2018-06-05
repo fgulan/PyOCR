@@ -6,7 +6,7 @@ import numpy as np
 import pathlib
 
 from filters.noise.noise_removal import NoiseRemoval
-from filters.binarization import otsu
+from filters.binarization import otsu, sauvola
 from utils.helpers import load_image, debug_display_image, debug_plot_array
 from utils.char_mapper import vocab_letter_to_class
 
@@ -14,10 +14,12 @@ from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
 
 
+INVALID_WORD_FOLDER = "./invalid_words"
+
 def process_image(image_path):
     input_image = load_image(image_path)
 
-    binarizer = otsu.OtsuBinarization()
+    binarizer = sauvola.SauvolaBinarization()
     binarized_img = binarizer.process(input_image)
     binarized_img = cv2.bitwise_not(binarized_img)
 
@@ -59,14 +61,18 @@ def process_chars(ocr_chars, file_chars, root_output_folder):
         cv2.imwrite(output_file, scaled_image)
 
 
-def process_words(ocr_words, file_words, root_output_folder):
+def process_words(ocr_words, file_words, root_output_folder, line_index):
     for ocr_word, file_word in zip(ocr_words, file_words):
         ocr_chars = ocr_word.get_segments()
         file_chars = list(file_word)
 
         if len(ocr_chars) != len(file_chars):
-            print("Neispravan broj znakova u rijeci: " + file_word)
+            print("Neispravan broj znakova u rijeci: " + file_word, "Linija:", str(line_index + 1))
             print("ocr_chars:", len(ocr_chars), "file_chars", len(file_chars))
+            file_name = str(uuid.uuid4()) + ".jpg"
+            pathlib.Path(INVALID_WORD_FOLDER).mkdir(parents=True, exist_ok=True)
+            output_path = os.path.join(INVALID_WORD_FOLDER, file_name)
+            ocr_word.save(output_path)
             continue
 
         process_chars(ocr_chars, file_chars, root_output_folder)
@@ -86,7 +92,7 @@ def process(args):
         file_words = get_words(file_line)
 
         if len(ocr_words) == len(file_words):
-            process_words(ocr_words, file_words, args.output)
+            process_words(ocr_words, file_words, args.output, index)
         else:
             print("Neispravan broj rijeci na liniji " + str(index + 1))
             continue

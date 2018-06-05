@@ -36,7 +36,7 @@ def draw_box(image, ocr_image):
 # input_image = load_image("../dataset_docs/cen_gothic_12.jpg")
 # input_image = load_image("../dataset_docs/cen_gothic_12_bold.jpg")
 # input_image = load_image("../../data/dataset_docs/sans_serif_12_italic.jpg")
-input_image = load_image("../../data/scan.jpg")
+input_image = load_image("../../data/temp_2.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -70,9 +70,9 @@ for line in lines:
         
         chars = word.get_segments()
         words_count += 1
-        # draw_box(backtorgb, word)
+        draw_box(backtorgb, word)
         for char in chars:
-            draw_box(backtorgb, char)
+            # draw_box(backtorgb, char)
             chars_count += 1
 
 print("Broj rijeci", words_count)
