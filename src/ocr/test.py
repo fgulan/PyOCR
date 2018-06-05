@@ -21,22 +21,22 @@ def draw_box(image, ocr_image):
 # input_image = load_image("../data/img_0861.jpg")
 # input_image = load_image("../data/word.jpg")
 
-# input_image = load_image("../dataset_docs/calibri_12.jpg")
-# input_image = load_image("../dataset_docs/calibri_12_bold.jpg")
-# input_image = load_image("../dataset_docs/tnr_12_bold.jpg")
-# input_image = load_image("../dataset_docs/tnr_12.jpg")
-# input_image = load_image("../dataset_docs/arial_12.jpg")
-# input_image = load_image("../dataset_docs/arial_12_bold.jpg")
-# input_image = load_image("../dataset_docs/helvetica_12.jpg")
-# input_image = load_image("../dataset_docs/helvetica_12_bold.jpg")
-# input_image = load_image("../dataset_docs/verdana_12.jpg")
-# input_image = load_image("../dataset_docs/verdana_12_bold.jpg")
-# input_image = load_image("../dataset_docs/comic_12.jpg")
-# input_image = load_image("../dataset_docs/comic_12_bold.jpg")
-# input_image = load_image("../dataset_docs/cen_gothic_12.jpg")
-# input_image = load_image("../dataset_docs/cen_gothic_12_bold.jpg")
+input_image = load_image("../../data/dataset_docs/calibri_12.jpg") 
+# input_image = load_image("../../data/dataset_docs/calibri_12_bold.jpg")
+# input_image = load_image("../../data/dataset_docs/tnr_12_bold.jpg")
+# input_image = load_image("../../data/dataset_docs/tnr_12.jpg")
+# input_image = load_image("../../data/dataset_docs/arial_12.jpg")
+# input_image = load_image("../../data/dataset_docs/arial_12_bold.jpg")
+# input_image = load_image("../../data/dataset_docs/helvetica_12.jpg")
+# input_image = load_image("../../data/dataset_docs/helvetica_12_bold.jpg")
+# input_image = load_image("../data/dataset_docs/verdana_12.jpg")
+# input_image = load_image("../data/dataset_docs/verdana_12_bold.jpg")
+# input_image = load_image("../data/dataset_docs/comic_12.jpg")
+# input_image = load_image("../data/dataset_docs/comic_12_bold.jpg")
+# input_image = load_image("../data/dataset_docs/cen_gothic_12.jpg")
+# input_image = load_image("../data/dataset_docs/cen_gothic_12_bold.jpg")
 # input_image = load_image("../../data/dataset_docs/sans_serif_12_italic.jpg")
-input_image = load_image("../../data/temp_2.jpg")
+# input_image = load_image("../../data/temp_2.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -60,11 +60,13 @@ lines = text_image.get_segments()
 chars_count = 0
 words_count = 0
 line_count = 0
+line_hg = 0
 # draw_box(backtorgb, text_image)
 print("Broj linija", len(lines))
 for line in lines:
     line_count += 1
     words = line.get_segments()
+    line_hg += line.get_height()
     # draw_box(backtorgb, line)
     for word in words:
         
@@ -77,5 +79,6 @@ for line in lines:
 
 print("Broj rijeci", words_count)
 print("Broj slova", chars_count)
+print("Line hg", line_hg / line_count)
 cv2.imwrite("backtorgb.jpg", backtorgb)
 

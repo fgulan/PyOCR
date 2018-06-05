@@ -19,12 +19,14 @@ class LineImage(OCRImage):
 
     def get_segments(self):
         image = self.get_image()
+        use_cap = True
         
         # Get all possible spaces (used image is without baseline and cap)
-        space_candidates = self._get_word_spaces_candidates(image)
+        spaces = self._get_word_spaces_candidates(image, use_cap=use_cap)
 
-        # Align previous spaces to include overlap 
-        spaces = self._align_space_candidates(space_candidates, image)
+        # Align previous spaces to include overlap if cap is not used
+        if not use_cap:
+            spaces = self._align_space_candidates(spaces, image)
 
         word_coords = self._extract_word_coords(image, spaces)
         word_coords = self._strip_words(word_coords, image)
@@ -128,13 +130,17 @@ class LineImage(OCRImage):
         
         return word_coords
 
-    def _get_word_spaces_candidates(self, image):
+    def _get_word_spaces_candidates(self, image, use_cap=True):
         height, _ = image.shape[:2]
 
         # Lets ignore everything below baseline and above cap in 
         # histogram calculation so it won't create non space issues
         offset = height * self.BASELINE_DISTANCE_RATIO
-        start_y = int(height * self.CAP_DISTANCE_RATIO)
+        if use_cap:
+            start_y = 0
+        else:
+            start_y = int(height * self.CAP_DISTANCE_RATIO)
+            
         end_y = int(height - offset)
         v_proj = hist.vertical_projection(image[start_y:end_y,:])
 
