@@ -8,8 +8,8 @@ from utils.helpers import debug_plot_array
 
 class LineImage(OCRImage):
 
-    SPACE_NOISE_THRESHOLD = 2
     BASELINE_DISTANCE_RATIO = 0.15
+    CAP_DISTANCE_RATIO = 0.3
     # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
@@ -20,12 +20,56 @@ class LineImage(OCRImage):
     def get_segments(self):
         image = self.get_image()
         
-        spaces = self._get_word_spaces(image)
+        # Get all possible spaces (used image is without baseline and cap)
+        space_candidates = self._get_word_spaces_candidates(image)
+
+        # Align previous spaces to include overlap 
+        spaces = self._align_space_candidates(space_candidates, image)
+
         word_coords = self._extract_word_coords(image, spaces)
         word_coords = self._strip_words(word_coords, image)
         self.words = self._map_word_coords_to_object(image, word_coords)
         
         return self.words
+    
+    def _align_space_candidates(self, space_candidates, image):
+        aligned_spaces = []
+
+        for candidate in space_candidates:
+            region = self._extract_space_region(*candidate, image)
+            aligned_spaces.append(region)
+
+        return aligned_spaces
+
+    def _extract_space_region(self, start_x, end_x, image):
+        new_start = None
+        new_end = None
+    
+        v_proj = hist.vertical_projection(image[:,start_x:end_x + 1])
+        new_candidates = []
+        for index, value in enumerate(v_proj):
+            if value <= 2:
+                if new_start == None:
+                    new_start = index
+                new_end = index
+            else:
+                if new_start != None and new_end != None:
+                    new_candidates.append((new_start, new_end))
+                new_start = None
+                new_end = None
+        
+        if len(new_candidates) == 0:
+            middle = (start_x + end_x + 1) / 2
+            new_start = int(middle - 1)
+            new_end = int(middle + 1)
+        else:
+            # sort them so that biggest space is used
+            new_candidates = sorted(new_candidates, key=lambda region: region[1] - region[0], reverse=True)
+            new_start, new_end = new_candidates[0]
+            new_start += start_x
+            new_end += start_x
+
+        return new_start, new_end
 
     def _strip_words(self, word_coords, image):
         new_coords = []
@@ -84,13 +128,13 @@ class LineImage(OCRImage):
         
         return word_coords
 
-    def _get_word_spaces(self, image):
+    def _get_word_spaces_candidates(self, image):
         height, _ = image.shape[:2]
 
-        # Lets ignore everything below baseline in histogram calculation
-        # so it won't create non space issues
+        # Lets ignore everything below baseline and above cap in 
+        # histogram calculation so it won't create non space issues
         offset = height * self.BASELINE_DISTANCE_RATIO
-        start_y = 0
+        start_y = int(height * self.CAP_DISTANCE_RATIO)
         end_y = int(height - offset)
         v_proj = hist.vertical_projection(image[start_y:end_y,:])
 
@@ -99,7 +143,7 @@ class LineImage(OCRImage):
 
         all_spaces = []
         for index, value in enumerate(v_proj):
-            if value < self.SPACE_NOISE_THRESHOLD:
+            if value <= 0:
                 if start_x == None:
                     start_x = index
                 end_x = index
