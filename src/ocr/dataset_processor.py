@@ -19,7 +19,7 @@ INVALID_WORD_FOLDER = "./invalid_words"
 def process_image(image_path):
     input_image = load_image(image_path)
 
-    binarizer = sauvola.SauvolaBinarization()
+    binarizer = otsu.OtsuBinarization()
     binarized_img = binarizer.process(input_image)
     binarized_img = cv2.bitwise_not(binarized_img)
 
@@ -39,6 +39,8 @@ def process_text_file(file_path):
     lines = []
     with open(file_path) as text_file:
         lines = text_file.read().splitlines()
+    lines = list(map(lambda line: line.strip(), lines))
+    lines = list(filter(None, lines))
     return lines
 
 
@@ -82,6 +84,7 @@ def process(args):
     file_lines = process_text_file(args.text_file)
     text_image = process_image(args.image)
 
+    import pdb; pdb.set_trace()
     text_lines = text_image.get_segments()
     if len(text_lines) != len(file_lines):
         print("Neispravan broj linija!")

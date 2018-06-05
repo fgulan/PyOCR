@@ -72,7 +72,7 @@ for line in lines:
         words_count += 1
         draw_box(backtorgb, word)
         for char in chars:
-            draw_box(backtorgb, char)
+            # draw_box(backtorgb, char)
             chars_count += 1
 
 print("Broj rijeci", words_count)
