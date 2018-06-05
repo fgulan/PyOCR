@@ -3,11 +3,15 @@ import cv2
 import numpy as np
 
 from utils import hist
+import imutils
 
+from scipy.ndimage import interpolation as inter
 
 class OCRImage:
 
-    MAX_ROTATE = 15
+    MAX_ROTATE_ANGLE = 3
+    ANGLE_DELTA = 0.05
+    MAX_SCALED_DIMENSION = 800
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         self._image = image
@@ -59,15 +63,45 @@ class OCRImage:
         return roi_image, width, height, min_x, min_y
 
     def fix_skew(self):
-        angle = self._calculate_skewed_angle(self._image)
+        angle = self._calculate_skewed_angle_projection(self._image)
 
-        if abs(angle) < self.MAX_ROTATE:
+        if abs(angle) < self.MAX_ROTATE_ANGLE:
             self._image = self._rotate_image(self._image, angle)
             self._height, self._width = self._image.shape
 
         return angle
 
-    def _calculate_skewed_angle(self, image):
+    def _calculate_skewed_angle_projection(self, input_image):
+        height, width = input_image.shape
+
+        new_image = input_image.copy()
+
+        biggest_dimension = max(height, width)
+        scale = self.MAX_SCALED_DIMENSION / biggest_dimension
+
+        new_height, new_width = round(height * scale), round(width * scale)
+        scaled_image = cv2.resize(new_image, (new_width, new_height))
+
+        angles = np.arange(-self.MAX_ROTATE_ANGLE, self.MAX_ROTATE_ANGLE + self.ANGLE_DELTA, self.ANGLE_DELTA)
+        scores = []
+        for angle in angles:
+            score = self._find_rotation_score(scaled_image, angle)
+            scores.append(score)
+
+        best_angle = angles[np.argmax(scores)]
+        return best_angle
+
+    def _find_rotation_score(self, image, angle):
+        # Rotate image for given angle
+        rotated_image = inter.rotate(image, angle, reshape=False, order=0)
+        # Calculate horizontal projection
+        h_proj = hist.horizontal_projection(rotated_image)
+        # Calculate projection gradient
+        score = np.sum((h_proj[1:] - h_proj[:-1]) ** 2)
+        
+        return score
+
+    def _calculate_skewed_angle_bbox(self, image):
         coords = np.column_stack(np.where(image > 0))
         angle = cv2.minAreaRect(coords)[-1]
 

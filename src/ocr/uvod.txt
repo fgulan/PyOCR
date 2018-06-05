@@ -1,20 +1,30 @@
-At vero eos et accusamus et iusto odio di9nissimos ducimus qui blanditiis praesentium
-voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati
-cupiditate non provident, similique sunt in culpa qui oficia deserunt mollitia animi, id est laborum
-et dolorum fu9a. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore,
-cum soluta nobis est eli9endi optio cumque nihil impedit quo minus id quod maxime placeat
-facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem
-quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates
-repudiandae sint et molestiae non recusandae. ltaque earum rerum hic tenetur a sapiente
-delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus
-asperiores repellat.
-..sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto
-beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut
-odit aut fu9it, sed quia consequuntur ma9ni dolores eos qui ratione voluptatem sequi nesciunt.
-Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed
-quia non numquam eius modi tempora incidunt ut labore et dolore ma9nam aliquam quaerat
-voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit
-laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit
-qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fu9iat
-quo voluptas nulla pariatur?
+1 O UYOd
+zah!jCV za sVwOdnCVnOm ObradOm sVC VCĆC kOličinC pOdatwa pOlakO, ali sigumO,
+stVa!.a VClik prOblCm čOYjCku. sVwi dan zah!jCVa sC Obrada OgrOmnC kOličinC papirna-
+tih dOkumCnata kOjC iC uglaVnOm pOtrCbnO Obraditi i unijCti na računalO. KwO bi sC
+izbjCglO ručnO prCpisiVanjC prOjCktneju sC raznOrazni sustaVi kOji ĆC tej pOsaO autOma-
+( izira( i.
+PĐmjCr iCdnOg twVOg pOsla iC i ispraV!janjC prOYjCra znanja s abC-pitaliCama. Is-
+pitank sVOj OdgOVOr unOsi zaCrnjiVanjCm u matriCi za unOs OdgOVOra. NO u slučeju
+pOgrCŠkC, ispitanik mOžC prOmjCniti OdgOVOr twO da izraVnO upiŠC nOVi OdgOVOr na
+za tO OdgOVa!.ejuĆC mjCstO. UkOlikO bi iCdan ispraV!jač ručnO prOYjCraVaO sVwi Obra-
+zaC i unOsiO u sustaV, tej bi pOsaO na kOlCgijima Od 6OO i ViŠC studCnata trejaO i pO
+nCkOlikO dana.
+kOz OVej rad pOkazat ĆC sC implCmCntaCija sustaVa za prCpOznaVanjC rukOm pi-
+sanih slOVa kOji ĆC na sVOj ulaz priwti izdVOjCnu sliku slOVa tC kaO rCzultat Vratiti
+prCpOznatO slOVO. PrVi kOrw ĆC biti prikup!janjC skupa pOdatwa rukOm pisanih slOVa,
+zatim Obrada istih. NwOn tOga slijCdi izgradnja sustaVa za klasifkaCiju pOjCdinOg
+slOVa tC njCgOVO iskOriŠtaVanjC u stVa!.nim uYjCtima rada.
+KaO sustaV za klasifkaCjju bit ĆC kOriŠtCna umjCtna nCurOnska wCža učCna algO-
+ĐtmOm prOpagaCijC pOgrCŠkC unatrag. RazlOg tOmu iC iCdnOstaVna implCmCntaCija
+twVOg sustaVa tC VClika spOsObnOs( gCnCralizaCijC kOjC nudi nCurOnska wCža. KwO
+dObiVCna slika slOVa mOžC biti VClika i nCObrađCna, pnjC prikaziVanja pOdatwa nCurOn-
+skOj l))!.Cži, sliku iC pOtrCbnO Obraditi tC izVuĆi VCktOr značejki. PrilkOm izlučiVanja
+VCktOra značejki kOristiti ĆC sC dijagOnalna prOjCkCjja, kOja iC rClatiVnO nOV pOjam
+prCdstaV!jCn u radu l6l.
+Ostatw rada Organiziran iC kwO slijCdi. U drugOm pOglaV!ju Opisan iC pOstupak
+pĐkup!janja i ObradC skupa pOdatwa. U trCĆCm pOglaV!ju Opisan iC pOstupw klasif-
+kaCijC kOriŠtCnjCm nCurOnskC l))!.CžC kOja iC učCna algOĐtmOm prOpagaCjjC pOgrCŠkC
+unatrag uz dOdatw mOmCnta inCrCijC. U čCtVnOm pOglaV!ju su prCdstaV!jCnC mCtOdC
+izlučiVanja značejki iz pOjCdinOg slOVa dOk su u pCtOm pOglaV!ju prCdstaV!jCni uspO-
+l

@@ -7,7 +7,7 @@ from utils.helpers import load_image, debug_display_image, debug_plot_array
 
 from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
-import imutils
+from scipy.ndimage import interpolation as inter
 
 
 def draw_box(image, ocr_image):
@@ -35,7 +35,8 @@ def draw_box(image, ocr_image):
 # input_image = load_image("../dataset_docs/comic_12_bold.jpg")
 # input_image = load_image("../dataset_docs/cen_gothic_12.jpg")
 # input_image = load_image("../dataset_docs/cen_gothic_12_bold.jpg")
-input_image = load_image("../../data/dataset_docs/sans_serif_12_italic.jpg")
+# input_image = load_image("../../data/dataset_docs/sans_serif_12_italic.jpg")
+input_image = load_image("../../data/scan.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()
@@ -47,7 +48,7 @@ height, width = input_image.shape[:2]
 ocr_image = OCRImage(input_image, width, height)
 angle = ocr_image.fix_skew()
 
-rotated = imutils.rotate(orig_image, angle)
+rotated = inter.rotate(input_image, angle, reshape=False, order=0)
 backtorgb = cv2.cvtColor(rotated, cv2.COLOR_GRAY2RGB)
 
 roi_image, width, height, min_x, min_y = ocr_image.get_segments()
@@ -59,6 +60,7 @@ lines = text_image.get_segments()
 chars_count = 0
 words_count = 0
 line_count = 0
+# draw_box(backtorgb, text_image)
 print("Broj linija", len(lines))
 for line in lines:
     line_count += 1
@@ -68,7 +70,7 @@ for line in lines:
         
         chars = word.get_segments()
         words_count += 1
-        draw_box(backtorgb, word)
+        # draw_box(backtorgb, word)
         for char in chars:
             draw_box(backtorgb, char)
             chars_count += 1
