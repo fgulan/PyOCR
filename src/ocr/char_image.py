@@ -24,10 +24,8 @@ class CharImage(OCRImage):
             new_image = self._scale_image(image, ratio)
         else:
             # Scale small elements
-            debug_display_image(image)
             height_ratio = self.AVERAGE_LINE_HEIGHT / line_height
             new_image = self._scale_image(image, height_ratio)
-            debug_display_image(new_image)
 
         new_height, new_width = new_image.shape[:2]
 

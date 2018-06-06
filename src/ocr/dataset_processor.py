@@ -12,9 +12,19 @@ from utils.char_mapper import vocab_letter_to_class
 
 from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
-
+from scipy.ndimage import interpolation as inter
 
 INVALID_WORD_FOLDER = "./invalid_words"
+
+
+def draw_box(image, ocr_image):
+    b_box = ocr_image.get_bounding_box()
+    cv2.rectangle(image,
+                  (b_box['x'] - 1, b_box['y'] - 1),
+                  (b_box['x'] + b_box['width'] - 1,
+                   b_box['y'] + b_box['height'] - 1),
+                  (255, 0, 0), 1)
+
 
 def process_image(image_path):
     input_image = load_image(image_path)
@@ -28,11 +38,14 @@ def process_image(image_path):
 
     height, width = input_image.shape[:2]
     ocr_image = OCRImage(input_image, width, height)
-    ocr_image.fix_skew()
+    angle = ocr_image.fix_skew()
 
+    rotated = inter.rotate(input_image, angle, reshape=False, order=0)
+    original_image = cv2.cvtColor(rotated, cv2.COLOR_GRAY2RGB)
+    
     roi_image, width, height, min_x, min_y = ocr_image.get_segments()
     text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
-    return text_image
+    return text_image, original_image
 
 
 def process_text_file(file_path):
@@ -69,20 +82,22 @@ def process_words(ocr_words, file_words, root_output_folder, line_index, avg_lin
         file_chars = list(file_word)
 
         if len(ocr_chars) != len(file_chars):
-            print("Neispravan broj znakova u rijeci: " + file_word, "Linija:", str(line_index + 1))
-            print("ocr_chars:", len(ocr_chars), "file_chars", len(file_chars))
+            # print("Neispravan broj znakova u rijeci: " + file_word, "Linija:", str(line_index + 1))
+            # print("ocr_chars:", len(ocr_chars), "file_chars", len(file_chars))
             file_name = str(uuid.uuid4()) + ".jpg"
-            pathlib.Path(INVALID_WORD_FOLDER).mkdir(parents=True, exist_ok=True)
+            pathlib.Path(INVALID_WORD_FOLDER).mkdir(
+                parents=True, exist_ok=True)
             output_path = os.path.join(INVALID_WORD_FOLDER, file_name)
             ocr_word.save(output_path)
             continue
 
-        process_chars(ocr_chars, file_chars, root_output_folder, avg_line_height)
+        process_chars(ocr_chars, file_chars,
+                      root_output_folder, avg_line_height)
 
 
 def process(args):
     file_lines = process_text_file(args.text_file)
-    text_image = process_image(args.image)
+    text_image, original_image = process_image(args.image)
 
     text_lines = text_image.get_segments()
     if len(text_lines) != len(file_lines):
@@ -94,15 +109,28 @@ def process(args):
         avg_line_height += line.get_height()
     avg_line_height /= len(text_lines)
     print(avg_line_height)
+
+    all_words = []
     for index, (ocr_line, file_line) in enumerate(zip(text_lines, file_lines)):
         ocr_words = ocr_line.get_segments()
         file_words = get_words(file_line)
 
+        all_words.extend(ocr_words)
         if len(ocr_words) == len(file_words):
-            process_words(ocr_words, file_words, args.output, index, avg_line_height)
+            process_words(ocr_words, file_words, args.output,
+                          index, avg_line_height)
         else:
             print("Neispravan broj rijeci na liniji " + str(index + 1))
             continue
+
+    export_words_image(original_image, all_words)
+
+
+def export_words_image(out_image, ocr_words):
+    for ocr_word in ocr_words:
+        draw_box(out_image, ocr_word)
+
+    cv2.imwrite("sample_words.jpg", out_image)
 
 
 def main():
