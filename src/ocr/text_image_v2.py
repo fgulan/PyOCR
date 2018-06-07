@@ -20,7 +20,7 @@ class TextImageBaseline(OCRImage):
 
         # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
         h_proj = hist.horizontal_projection(image)
-        h_proj_smooth = hist.running_mean(h_proj, 5)
+        h_proj_smooth = h_proj #hist.running_mean(h_proj, 5)
         hist_spaces = hist.get_histogram_spaces(h_proj_smooth, constants.NOISE_PIXELS_THRESHOLD)
         hist_peaks = hist.get_histogram_peaks(h_proj_smooth, hist_spaces)
 

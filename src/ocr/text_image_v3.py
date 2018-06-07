@@ -67,8 +67,11 @@ class TextImageBaseline(OCRImage):
         max_index = len(h_proj) - 1
 
         # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
-        h_proj_smooth = hist.running_mean(h_proj, 5)
+        # TODO: Fix smaller len than h_proj
+        h_proj_smooth = h_proj#hist.running_mean(h_proj, 5)
         new_candidates = []
+
+        print(len(h_proj_smooth))
         for big_line in big_line_candidates:
             line_start, line_end = big_line
             roi_hist = h_proj_smooth[line_start:line_end + 1]
@@ -132,6 +135,7 @@ class TextImageBaseline(OCRImage):
 
         h_proj = hist.horizontal_projection(image)
 
+        print(len(h_proj))
         # First of all, get perfectly separable segments (line candidates)
         space_candidates = hist.get_histogram_spaces(h_proj, 0)
         line_candidates = hist.get_histogram_peaks(h_proj, space_candidates)

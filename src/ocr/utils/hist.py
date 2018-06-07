@@ -12,10 +12,10 @@ def horizontal_projection(image):
 
 def blob_range(projection):
     """Gets first and last index with nonzero value
-    
+
     Arguments:
         projection {array} -- Histogram
-    
+
     Returns:
         (start_index, end_index) -- first and last index with nonzero value
     """
@@ -57,7 +57,7 @@ def get_histogram_peaks(hist, spaces):
         # space_start_x is first whitespace pixel, so first before is background
         section = (current_x, space_start_x - 1)
         hist_peaks.append(section)
-        
+
         # space_end_x is last whitespace pixel, so first next is foreground
         current_x = space_end_x + 1
 
@@ -70,12 +70,12 @@ def get_histogram_peaks(hist, spaces):
 
 def filter_histogram_peaks(hist_peaks, threshold):
     new_peaks = []
-    
+
     for start_x, end_x in hist_peaks:
         size = end_x - start_x + 1
         if size >= threshold:
             new_peaks.append((start_x, end_x))
-        
+
     return new_peaks
 
 
@@ -89,13 +89,8 @@ def get_histogram_peak_means(hist, peaks):
 
     return peaks_mean
 
-
-def running_mean(x, N):
-    cumsum = np.cumsum(np.insert(x, 0, 0))
-    return (cumsum[N:] - cumsum[:-N]) / float(N)
-
 def translate_points(points, delta):
-    
+
     translated_points = []
 
     for start_point, end_point in points:
@@ -104,3 +99,18 @@ def translate_points(points, delta):
         translated_points.append((new_start, new_end))
 
     return translated_points
+
+
+def smooth_histogram(x, window_size=3):
+
+    if window_size < 3:
+        return x
+
+    s = np.r_[x[window_size-1:0:-1], x, x[-2:-window_size-1:-1]]
+    w = np.ones(window_size, 'd')
+    y = np.convolve(w/w.sum(), s, mode='valid')
+
+    if window_size % 2 == 0:
+        return y[round(window_size/2) - 1:-round(window_size/2)]
+    else:
+        return y[(window_size//2):-(window_size//2)]

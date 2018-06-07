@@ -30,6 +30,8 @@ class LineImage(OCRImage):
 
         word_coords = self._extract_word_coords(image, spaces)
         word_coords = self._strip_words(word_coords, image)
+        word_coords = hist.filter_histogram_peaks(word_coords, 2)
+        
         self.words = self._map_word_coords_to_object(image, word_coords)
         
         return self.words

@@ -14,7 +14,7 @@ from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
 from scipy.ndimage import interpolation as inter
 
-INVALID_WORD_FOLDER = "./invalid_words"
+INVALID_WORD_FOLDER = "/Users/filipgulan/ds/invalid_words"
 
 
 def draw_box(image, ocr_image):
@@ -85,8 +85,6 @@ def process_words(ocr_words, file_words, root_output_folder, line_index, avg_lin
             # print("Neispravan broj znakova u rijeci: " + file_word, "Linija:", str(line_index + 1))
             # print("ocr_chars:", len(ocr_chars), "file_chars", len(file_chars))
             file_name = str(uuid.uuid4()) + ".jpg"
-            pathlib.Path(INVALID_WORD_FOLDER).mkdir(
-                parents=True, exist_ok=True)
             output_path = os.path.join(INVALID_WORD_FOLDER, file_name)
             ocr_word.save(output_path)
             continue

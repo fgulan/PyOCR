@@ -12,7 +12,7 @@ class WordImage(OCRImage):
 
     # https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=4457222
     # use 1.5 of width for threshold
-    MINIMUM_HEIGHT_WIDTH_RATIO = 1.5
+    MINIMUM_HEIGHT_WIDTH_RATIO = 1.2
 
     def __init__(self, image, width, height, x_offset=0, y_offset=0):
         super().__init__(image, width, height, x_offset, y_offset)
