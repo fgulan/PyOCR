@@ -11,30 +11,30 @@ from metrics import top_3_acc
 from datetime import datetime
 from models import OCRModel
 
-DATASET_ROOT_PATH = '/Users/filipgulan/college/ocr/data/dataset_split'
+DATASET_ROOT_PATH = '/home/gulan_filip/letters_dataset_split'
 LR = 1e-3
-MIN_LR = 1e-7
+MIN_LR = 1e-8
 NUM_CLASSES = 67
-BATCH_SIZE = 48
+BATCH_SIZE = 64
 NUM_CHANNELS = 1
 INPUT_SIZE = (40, 40)  # h x w
-EPOCHS = 10000
-NUM_THREADS = 4
+EPOCHS = 500
+NUM_THREADS = 8
 
 
 def get_callbacks():
 
     callbacks = list()
 
-    callbacks.append(EarlyStopping(monitor='val_loss', patience=20, verbose=1))
+    callbacks.append(EarlyStopping(monitor='val_loss', patience=100, verbose=1))
 
     weights_file = os.path.join(
         "weights", "weights_ep_{epoch:02d}_{val_acc:.5f}.hd5f")
     callbacks.append(ModelCheckpoint(weights_file, monitor='val_acc', verbose=1,
                                      save_best_only=True, mode='max', save_weights_only=True))
 
-    callbacks.append(ReduceLROnPlateau(monitor='val_loss',
-                                       factor=0.3, patience=10, min_lr=MIN_LR))
+    callbacks.append(ReduceLROnPlateau(monitor='val_loss', verbose=1,
+                                       factor=0.3, patience=30, min_lr=MIN_LR))
 
     callbacks.append(BaseLogger())
 
@@ -55,10 +55,10 @@ def main():
 
     # Create data generators
     train_datagen = ImageDataGenerator(rescale=1. / 255,
-                                       rotation_range=10,
+                                       rotation_range=8,
                                        zoom_range=(0.7, 1.3),
-                                       width_shift_range=0.15,
-                                       height_shift_range=0.15)
+                                       width_shift_range=0.1,
+                                       height_shift_range=0.1)
 
     validation_datagen = ImageDataGenerator(rescale=1. / 255)
 
