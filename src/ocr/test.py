@@ -36,7 +36,7 @@ def draw_box(image, ocr_image):
 # input_image = load_image("../data/dataset_docs/cen_gothic_12.jpg")
 # input_image = load_image("../data/dataset_docs/cen_gothic_12_bold.jpg")
 # input_image = load_image("../../data/dataset_docs/sans_serif_12_italic.jpg")
-input_image = load_image("/Users/filipgulan/ds/300dpi/temp_1.jpg")
+input_image = load_image("/Users/filipgulan/ds/300dpi/temp_5.jpg")
 
 orig_image = input_image.copy()
 binarizer = otsu.OtsuBinarization()

@@ -31,8 +31,8 @@ class CharImage(OCRImage):
 
         delta_w = self.SCALED_IMAGE_SIZE - new_width
         delta_h = self.SCALED_IMAGE_SIZE - new_height
-        top, bottom = delta_h//2, delta_h-(delta_h//2)
-        left, right = delta_w//2, delta_w-(delta_w//2)
+        top, bottom = max(0, delta_h//2), max(0, delta_h-(delta_h//2))
+        left, right = max(0, delta_w//2), max(0, delta_w-(delta_w//2))
 
         new_image = cv2.copyMakeBorder(new_image, top, bottom, left, right,
                                        cv2.BORDER_CONSTANT, value=0)

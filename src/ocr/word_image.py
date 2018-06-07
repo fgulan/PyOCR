@@ -95,8 +95,9 @@ class WordImage(OCRImage):
         candidates = sorted(
             candidates, key=lambda stat: stat[cv2.CC_STAT_LEFT])
         # Filter noise stats
+        # TODO: Font related bold or light constant
         candidates = list(
-            filter(lambda stat: stat[cv2.CC_STAT_WIDTH] > 4, candidates))
+            filter(lambda stat: stat[cv2.CC_STAT_WIDTH] > 2, candidates))
 
         new_peaks = []
         
