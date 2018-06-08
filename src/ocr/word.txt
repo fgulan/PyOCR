@@ -1,0 +1,30 @@
+1 . Uvod
+zahtjev za svxodnevnom obradom sve veće količine podatxa polako, ali sigumo,
+stvma velik problem čovjeku. svxi dan zahtjeva se obrada ogromne količine papirna-
+tih dokumenata koje je ug1avnom potrebno obraditi i unijeti na računalo. Kxo bi se
+izbjeglo ručno prepisivanje projektEaju se raznorazni sustavi koji će taj posao automa-
+tizirati.
+PHmjer jednog txvog posla je i ispravljanje provjera znanja s abc-pitalicama. Is-
+pitank svoj odgovor unosi zacrnjivanjem u Irlatrici za unos odgovora. No u slučaju
+pogreške, ispitanik može promjeniti odgovorI txo da izravno upiše novi odgovor na
+za to odgovmajuće mjesto. Ukoliko bi jedan ispravljač ručno provjeravao svxi obra-
+zac i unosio u sustav, taj bi posao na kolegijima od 600 i više studenata trajao i po
+nekoliko dana.
+Koz ovaj rad pokazat će se implementacija sustava za prepoznavanje rukom pi-
+sanih slova koji će na svoj ulaz primti izdvojenu sliku slova te kao rezultat vratiti
+prepoznato slovo. Prvi korx će biti pHkup1janje skupa podatxa rukom pisanih slova,
+zatim obrada istih. Nxon toga slijedi izgrIadnja sustava za klasihkaciju pojedinog
+slova te njegovo iskorIištavanje u stvmnim uvjetima rIada.
+Kao sustav za klasihkaciju bit će korištena umjetna neuronska meža učena algo-
+Htmom propagacije pogreške unatrag. Razlog tomu je jednostavna implementacija
+txvog sustava te velika sposobnost generalizacije koje nudi neuronska meža. Kxo
+dobivena slika slova može biti velika i neobrađena, prije prikazivanja podatxa neuron-
+skoj rrreži, sliku je potrebno obraditi te izvući vektor značajki. Prilkom izlučivanja
+vektora značajki korIistiti će se dijagonalna prIojekcija, koja je relativno nov pojam
+predstavljen u radu I6l.
+ostatx rada organiziran je kxo slijedi. U drugom poglavlju opisan je postupak
+pHkupljanja i obrade skupa podatxa. U trećem poglavlju opisan je postupx klasin-
+kacije korištenjem neuronske rrreže koja je učena algoHtmom propagacije pogreške
+unatrag uz dodatx momenta inercije. U četvnom poglavlju su predstavljene metode
+izlučivanja značajki iz pojedinog slova dok su u petom poglavlju predstavljeni uspo-
+1

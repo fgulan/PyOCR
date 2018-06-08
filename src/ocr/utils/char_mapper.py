@@ -72,6 +72,21 @@ unique_letter_to_class = {
     'y': 'unique_y',
 }
 
+unique_small_letter_to_class = {
+    'w': 'unique_w',
+    'x': 'unique_x',
+    'v': 'unique_v',
+    'z': 'unique_z',
+    'ž': 'unique_z1',
+    's': 'unique_s',
+    'š': 'unique_s1',
+    'o': 'unique_o',
+    'c': 'unique_c',
+    'č': 'unique_c1',
+    'ć': 'unique_c2',
+    'y': 'unique_y',
+}
+
 number_letter_to_class = {
     '0': 'number_0',
     '1': 'number_1',
@@ -126,7 +141,7 @@ vocab_letter_to_class = {
     **alphabet_upper_mapper_letter_to_class,
     **number_letter_to_class,
     **special_letter_to_class,
-    **unique_letter_to_class
+    **unique_small_letter_to_class
 }
 
 class_to_vocab_letter = {v: k for k, v in vocab_letter_to_class.items()}

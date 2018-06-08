@@ -10,15 +10,19 @@ from utils.char_mapper import classifier_out_to_vocab_letter
 from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
 
-from keras.models import model_from_json
+from keras.models import model_from_json, Model
+from models import OCRModel
 
 
 def prepare_model(model_path, weights_path):
 
-    with open(model_path, 'r') as model_file:
-        loaded_model_json = model_file.read()
+    # with open(model_path, 'r') as model_file:
+        # loaded_model_json = model_file.read()
 
-    model = model_from_json(loaded_model_json)
+    # model = model_from_json(loaded_model_json)
+    predictions, inputs = OCRModel((*(40, 40), 1), 67)
+    # this is the model we will train
+    model = Model(inputs=inputs, outputs=predictions)
     model.load_weights(weights_path)
 
     return model
