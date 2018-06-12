@@ -8,7 +8,7 @@ from utils.helpers import debug_plot_array
 
 class LineImage(OCRImage):
 
-    BASELINE_DISTANCE_RATIO = 0.15
+    BASELINE_DISTANCE_RATIO = 0.015
     CAP_DISTANCE_RATIO = 0.3
     # Idea took from https://content.sciendo.com/view/journals/amcs/27/1/article-p195.xml
 
