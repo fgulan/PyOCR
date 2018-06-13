@@ -11,7 +11,7 @@ from metrics import top_3_acc
 from datetime import datetime
 from models import OCRModel
 
-DATASET_ROOT_PATH = '/home/gulan_filip/letters_dataset_split'
+DATASET_ROOT_PATH = '/Users/filipgulan/ds/letters_dataset_split'
 LR = 1e-3
 MIN_LR = 1e-8
 NUM_CLASSES = 67
@@ -73,7 +73,7 @@ def main():
         color_mode='grayscale')
 
     validation_flow = validation_datagen.flow_from_directory(
-        os.path.join(DATASET_ROOT_PATH, 'validation'),
+        os.path.join(DATASET_ROOT_PATH, 'test'),
         target_size=INPUT_SIZE,
         batch_size=BATCH_SIZE,
         class_mode='categorical',
