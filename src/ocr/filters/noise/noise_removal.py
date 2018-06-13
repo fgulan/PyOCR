@@ -34,7 +34,7 @@ class NoiseRemoval(ImageFilter):
         scale = self.scaled_dimension / biggest_dimension
 
         new_height, new_width = round(height * scale), round(width * scale)
-        scaled_image = cv2.resize(new_image, (new_width, new_height))
+        scaled_image = cv2.resize(new_image, (new_width, new_height), interpolation=cv2.INTER_NEAREST)
 
         denoised_image = cv2.fastNlMeansDenoising(
             scaled_image, None, 30, 7, 21)

@@ -18,13 +18,13 @@ def draw_box(image, ocr_image):
                     (255, 0, 0), 1)
 
 # input_image = load_image("../data/uvod.jpg")
-input_image = load_image("../../data/img_0861.jpg")
+input_image = load_image("../../data/img_0963.jpg")
 # input_image = load_image("../../data/index.jpg")
-plt.hist(input_image.ravel(),256,[0,256])
+# plt.hist(input_image.ravel(),256,[0,256])
 # plt.ylabel('Brojnost slikovnog elementa')
 # plt.xlabel('Slikovni element')
-plt.savefig("histogram.pdf", format='pdf')
-plt.show()
+# plt.savefig("histogram.pdf", format='pdf')
+# plt.show()
 
 # input_image = load_image("../../data/dataset_docs/calibri_12.jpg") 
 # input_image = load_image("../../data/dataset_docs/calibri_12_bold.jpg")
@@ -44,8 +44,12 @@ plt.show()
 # input_image = load_image("/Users/filipgulan/ds/300dpi/temp_5.jpg")
 
 orig_image = input_image.copy()
-binarizer = otsu.OtsuBinarization()
+binarizer = sauvola.SauvolaBinarization()
 binarized_img = binarizer.process(input_image)
+
+cv2.imwrite("otsu.jpg", binarized_img)
+
+
 binarized_img = cv2.bitwise_not(binarized_img)
 denoiser = NoiseRemoval()
 input_image = denoiser.process(binarized_img)
@@ -54,6 +58,7 @@ ocr_image = OCRImage(input_image, width, height)
 angle = ocr_image.fix_skew()
 
 rotated = inter.rotate(input_image, angle, reshape=False, order=0)
+debug_display_image(rotated)
 backtorgb = cv2.cvtColor(rotated, cv2.COLOR_GRAY2RGB)
 
 roi_image, width, height, min_x, min_y = ocr_image.get_segments()
