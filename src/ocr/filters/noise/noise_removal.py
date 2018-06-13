@@ -34,7 +34,8 @@ class NoiseRemoval(ImageFilter):
         scale = self.scaled_dimension / biggest_dimension
 
         new_height, new_width = round(height * scale), round(width * scale)
-        scaled_image = cv2.resize(new_image, (new_width, new_height), interpolation=cv2.INTER_NEAREST)
+        scaled_image = cv2.resize(
+            new_image, (new_width, new_height), interpolation=cv2.INTER_NEAREST)
 
         denoised_image = cv2.fastNlMeansDenoising(
             scaled_image, None, 30, 7, 21)
@@ -44,7 +45,8 @@ class NoiseRemoval(ImageFilter):
 
         binary_mask = cv2.threshold(
             dilated_mask, 127, 255, cv2.THRESH_BINARY)[1]
-        binary_mask = cv2.resize(binary_mask, (width, height))
+        binary_mask = cv2.resize(
+            binary_mask, (width, height), interpolation=cv2.INTER_NEAREST)
 
         output_image = cv2.bitwise_and(
             input_image, input_image, mask=binary_mask)

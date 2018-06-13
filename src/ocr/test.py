@@ -61,6 +61,7 @@ rotated = inter.rotate(input_image, angle, reshape=False, order=0)
 debug_display_image(rotated)
 backtorgb = cv2.cvtColor(rotated, cv2.COLOR_GRAY2RGB)
 
+denoiser.process(rotated)
 roi_image, width, height, min_x, min_y = ocr_image.get_segments()
 print(width, height)
 text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
