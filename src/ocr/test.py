@@ -8,7 +8,7 @@ from utils.helpers import load_image, debug_display_image, debug_plot_array
 from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
 from scipy.ndimage import interpolation as inter
-
+from matplotlib import pyplot as plt
 
 def draw_box(image, ocr_image):
     b_box = ocr_image.get_bounding_box()
@@ -18,8 +18,13 @@ def draw_box(image, ocr_image):
                     (255, 0, 0), 1)
 
 # input_image = load_image("../data/uvod.jpg")
-# input_image = load_image("../data/img_0861.jpg")
-input_image = load_image("../../data/index.jpg")
+input_image = load_image("../../data/img_0861.jpg")
+# input_image = load_image("../../data/index.jpg")
+plt.hist(input_image.ravel(),256,[0,256])
+# plt.ylabel('Brojnost slikovnog elementa')
+# plt.xlabel('Slikovni element')
+plt.savefig("histogram.pdf", format='pdf')
+plt.show()
 
 # input_image = load_image("../../data/dataset_docs/calibri_12.jpg") 
 # input_image = load_image("../../data/dataset_docs/calibri_12_bold.jpg")
