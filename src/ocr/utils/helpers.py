@@ -13,8 +13,4 @@ def debug_display_image(image):
 
 def debug_plot_array(array):
     plt.plot(array)
-    plt.xlabel('x label')
-    plt.ylabel('y label')
-    plt.title("Simple Plot")
-    plt.legend()
     plt.show()

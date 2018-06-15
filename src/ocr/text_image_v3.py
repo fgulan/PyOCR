@@ -60,7 +60,7 @@ class TextImageBaseline(OCRImage):
         return new_lines
 
     def _separate_big_candidates(self, lines, big_line_candidates, avg_line_height, h_proj):
-        if len(big_line_candidates) == 0 or len(lines) == 0:
+        if len(big_line_candidates) == 0:
             return lines
             
         new_lines = list(lines)
@@ -71,11 +71,11 @@ class TextImageBaseline(OCRImage):
         h_proj_smooth = h_proj#hist.running_mean(h_proj, 5)
         new_candidates = []
 
-        print(len(h_proj_smooth))
         for big_line in big_line_candidates:
             line_start, line_end = big_line
             roi_hist = h_proj_smooth[line_start:line_end + 1]
             roi_mean = np.mean(roi_hist)
+            
             new_coords = self._get_mean_peak_cords(
                 h_proj_smooth, big_line, roi_mean)
             new_candidates.extend(new_coords)
@@ -116,14 +116,17 @@ class TextImageBaseline(OCRImage):
             else:
                 new_lines.append((start_y, end_y))
 
+        if len(line_candidates) == 1:
+            new_lines = []
+            big_line_candidates.append(line_candidates[0])
+
         if len(new_lines) > 0:
             new_lines_avg_height = self._get_average_lines_height(new_lines)
         else:
             new_lines_avg_height = avg_line_candidate_height
-
+        
         # Join small lines (they are mostly top lines with diacritics)
-        new_lines = self._join_small_candidates(
-            new_lines, small_line_candidates, new_lines_avg_height)
+        new_lines = self._join_small_candidates(new_lines, small_line_candidates, new_lines_avg_height)
         new_lines = self._separate_big_candidates(
             new_lines, big_line_candidates, new_lines_avg_height, h_proj)
 
@@ -135,7 +138,6 @@ class TextImageBaseline(OCRImage):
 
         h_proj = hist.horizontal_projection(image)
 
-        print(len(h_proj))
         # First of all, get perfectly separable segments (line candidates)
         space_candidates = hist.get_histogram_spaces(h_proj, 0)
         line_candidates = hist.get_histogram_peaks(h_proj, space_candidates)

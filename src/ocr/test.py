@@ -4,7 +4,7 @@ import numpy as np
 from filters.noise.noise_removal import NoiseRemoval
 from filters.binarization import otsu, sauvola, adaptive_gauss
 from utils.helpers import load_image, debug_display_image, debug_plot_array
-
+from utils import hist
 from ocr_image import OCRImage
 from text_image_v3 import TextImageBaseline
 from scipy.ndimage import interpolation as inter
@@ -18,7 +18,7 @@ def draw_box(image, ocr_image):
                     (255, 0, 0), 1)
 
 # input_image = load_image("../data/uvod.jpg")
-input_image = load_image("../../data/img_0963.jpg")
+input_image = load_image("../../data/oversegm.jpg")
 # input_image = load_image("../../data/index.jpg")
 # plt.hist(input_image.ravel(),256,[0,256])
 # plt.ylabel('Brojnost slikovnog elementa')
@@ -47,7 +47,6 @@ orig_image = input_image.copy()
 binarizer = sauvola.SauvolaBinarization()
 binarized_img = binarizer.process(input_image)
 
-cv2.imwrite("otsu.jpg", binarized_img)
 
 
 binarized_img = cv2.bitwise_not(binarized_img)
@@ -58,11 +57,27 @@ ocr_image = OCRImage(input_image, width, height)
 angle = ocr_image.fix_skew()
 
 rotated = inter.rotate(input_image, angle, reshape=False, order=0)
-debug_display_image(rotated)
+# debug_display_image(rotated)
+cv2.imwrite("rotated.jpg", rotated)
 backtorgb = cv2.cvtColor(rotated, cv2.COLOR_GRAY2RGB)
+
+
+
+
+# debug_plot_array(h_proj)
 
 denoiser.process(rotated)
 roi_image, width, height, min_x, min_y = ocr_image.get_segments()
+h_proj = hist.horizontal_projection(roi_image)
+x = np.array(range(len(h_proj)))
+plt.plot(h_proj, x)
+
+plt.ylim(0, len(h_proj))  # decreasing time
+plt.gca().invert_yaxis()
+plt.xlabel('Broj slikovnih elemenata teksta')
+plt.ylabel('Linija')
+
+plt.show()
 print(width, height)
 text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
 lines = text_image.get_segments()
@@ -83,7 +98,7 @@ for line in lines:
         
         chars = word.get_segments()
         words_count += 1
-        draw_box(backtorgb, word)
+        # draw_box(backtorgb, word)
         for char in chars:
             # draw_box(backtorgb, char)
             chars_count += 1
@@ -91,5 +106,5 @@ for line in lines:
 print("Broj rijeci", words_count)
 print("Broj slova", chars_count)
 print("Line hg", line_hg / line_count)
-cv2.imwrite("backtorgb.jpg", backtorgb)
+cv2.imwrite("backtorgb.jpg", roi_image)
 
