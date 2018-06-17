@@ -14,14 +14,8 @@ from keras.models import model_from_json, Model
 from models import OCRModel
 
 
-def prepare_model(model_path, weights_path):
-
-    # with open(model_path, 'r') as model_file:
-        # loaded_model_json = model_file.read()
-
-    # model = model_from_json(loaded_model_json)
+def prepare_model(weights_path):
     predictions, inputs = OCRModel((*(40, 40), 1), 67)
-    # this is the model we will train
     model = Model(inputs=inputs, outputs=predictions)
     model.load_weights(weights_path)
 
@@ -61,11 +55,10 @@ def capitalize(word):
 def ends_with_stop_char(input_word):
     return input_word.endswith('.') or input_word.endswith('!') or input_word.endswith('?')
 
-def process(args):
-    text_image = process_image(args.image)
+def process(image_path, output_path, model):
+    text_image = process_image(image_path)
     ocr_lines = text_image.get_segments()
     lines = []
-    model = prepare_model(args.model, args.weights)
 
     for ocr_line in ocr_lines:
         print("Line")
@@ -91,11 +84,13 @@ def process(args):
         if len(lines) > 0:
             if ends_with_stop_char(lines[-1]):
                 line = capitalize(line)
+        else:
+            line = capitalize(line)
 
         lines.append(line)
 
     output_text = "\n".join(lines)
-    with open(args.output, 'a') as output_file:
+    with open(output_path, 'a') as output_file:
         output_file.write(output_text)
 
 
@@ -104,13 +99,12 @@ def main():
     parser.add_argument(
         '--image', help="Input text image", required=True, type=str)
     parser.add_argument(
-        '--model', help="Keras model", required=True, type=str)
-    parser.add_argument(
         '--weights', help="Keras model weights", required=True, type=str)
     parser.add_argument(
         '--output', help="Output text file", required=True, type=str)
     args = parser.parse_args()
-    process(args)
+    model = prepare_model(args.weights)
+    process(args.image, args.output, model)
 
 
 if __name__ == '__main__':

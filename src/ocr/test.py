@@ -17,8 +17,8 @@ def draw_box(image, ocr_image):
                     (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
                     (180, 119, 31), 2)
 
-# input_image = load_image("../data/uvod.jpg")
-input_image = load_image("../../data/oversegm.jpg")
+input_image = load_image("/Users/filipgulan/Desktop/test_set/comic.jpg")
+# input_image = load_image("../../data/oversegm.jpg")
 # input_image = load_image("../../data/index.jpg")
 # plt.hist(input_image.ravel(),256,[0,256])
 # plt.ylabel('Brojnost slikovnog elementa')
