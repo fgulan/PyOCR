@@ -128,7 +128,7 @@ class WordImage(OCRImage):
 
         indexes_to_remove = set()
         count = len(candidates)        
-        threshold = 0.75
+        threshold = 0.65
 
         # Sort candidates by area (biggest first) so that smallest ones
         # are filtered if centroids are on the same x position
