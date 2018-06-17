@@ -15,7 +15,7 @@ def draw_box(image, ocr_image):
     cv2.rectangle(image, 
                     (b_box['x'] - 1, b_box['y'] - 1),
                     (b_box['x'] + b_box['width'] - 1, b_box['y'] + b_box['height'] - 1), 
-                    (255, 0, 0), 1)
+                    (180, 119, 31), 2)
 
 # input_image = load_image("../data/uvod.jpg")
 input_image = load_image("../../data/oversegm.jpg")
@@ -77,7 +77,7 @@ plt.gca().invert_yaxis()
 plt.xlabel('Broj slikovnih elemenata teksta')
 plt.ylabel('Linija')
 
-plt.show()
+# plt.show()
 print(width, height)
 text_image = TextImageBaseline(roi_image, width, height, min_x, min_y)
 lines = text_image.get_segments()
@@ -100,11 +100,11 @@ for line in lines:
         words_count += 1
         # draw_box(backtorgb, word)
         for char in chars:
-            # draw_box(backtorgb, char)
+            draw_box(backtorgb, char)
             chars_count += 1
 
 print("Broj rijeci", words_count)
 print("Broj slova", chars_count)
 print("Line hg", line_hg / line_count)
-cv2.imwrite("backtorgb.jpg", roi_image)
+cv2.imwrite("backtorgb.jpg", backtorgb)
 
