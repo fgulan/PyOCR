@@ -55,6 +55,11 @@ def predict(ocr_char, model, word):
     output_index = np.argmax(output)
     return classifier_out_to_vocab_letter(output_index)
 
+def capitalize(word):
+    return word[0].upper() + word[1:] if len(word) > 0 else word
+
+def ends_with_stop_char(input_word):
+    return input_word.endswith('.') or input_word.endswith('!') or input_word.endswith('?')
 
 def process(args):
     text_image = process_image(args.image)
@@ -73,8 +78,20 @@ def process(args):
                 predicted_symbol = predict(ocr_char, model, chars)
                 chars.append(predicted_symbol)
             word = "".join(chars)
+            
+            # Capitalize word
+            if len(words) > 0:
+                if ends_with_stop_char(words[-1]):
+                    word = capitalize(word)
+            
             words.append(word)
+
         line = " ".join(words)
+        # Capitalize line
+        if len(lines) > 0:
+            if ends_with_stop_char(lines[-1]):
+                line = capitalize(line)
+
         lines.append(line)
 
     output_text = "\n".join(lines)
