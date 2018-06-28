@@ -1,0 +1,94 @@
+UNLV-ISRI OCR Accuracy Report Version 6.1
+-----------------------------------------
+    1561   Characters
+      81   Errors
+   94.81%  Accuracy
+
+       0   Reject Characters
+       0   Suspect Markers
+       0   False Marks
+    0.00%  Characters Marked
+   94.81%  Accuracy After Correction
+
+     Ins    Subst      Del   Errors
+       0        0        0        0   Marked
+       0       46       35       81   Unmarked
+       0       46       35       81   Total
+
+   Count   Missed   %Right
+     224        0   100.00   ASCII Spacing Characters
+      29        0   100.00   ASCII Special Symbols
+      16        2    87.50   ASCII Digits
+      42        6    85.71   ASCII Uppercase Letters
+    1192       38    96.81   ASCII Lowercase Letters
+      58        0   100.00   Latin Extended-A
+    1561       46    97.05   Total
+
+  Errors   Marked   Correct-Generated
+      50        0   {n}-{ll}
+       6        0   {h}-{ll}
+       5        0   {V}-{v}
+       4        0   {n}-{l1}
+       4        0   {ru}-{l.Il}
+       2        0   {1}-{l}
+       2        0   {e}-{c}
+       2        0   {k}-{lI}
+       2        0   {m}-{ln}
+       1        0   {O}-{o}
+       1        0   {p}-{P}
+       1        0   {r}-{n}
+       1        0   {}-{I}
+
+   Count   Missed   %Right
+      24        0   100.00   {<\n>}
+     200        0   100.00   { }
+       1        0   100.00   {!}
+       1        0   100.00   {(}
+       1        0   100.00   {)}
+      13        0   100.00   {,}
+       1        0   100.00   {-}
+      11        0   100.00   {.}
+      13        2    84.62   {1}
+       1        0   100.00   {2}
+       1        0   100.00   {4}
+       1        0   100.00   {9}
+       1        0   100.00   {?}
+      15        0   100.00   {A}
+       1        0   100.00   {B}
+       1        0   100.00   {D}
+       1        0   100.00   {E}
+       3        0   100.00   {G}
+       2        0   100.00   {H}
+       1        0   100.00   {K}
+       2        1    50.00   {O}
+       1        0   100.00   {R}
+       7        0   100.00   {T}
+       2        0   100.00   {U}
+       6        5    16.67   {V}
+     134        0   100.00   {a}
+      18        0   100.00   {b}
+      10        0   100.00   {c}
+      35        0   100.00   {d}
+     110        2    98.18   {e}
+       3        0   100.00   {f}
+      22        0   100.00   {g}
+      10        3    70.00   {h}
+     131        0   100.00   {i}
+      61        0   100.00   {j}
+      45        1    97.78   {k}
+      34        0   100.00   {l}
+      42        1    97.62   {m}
+      97       27    72.16   {n}
+     104        0   100.00   {o}
+      38        1    97.37   {p}
+      66        2    96.97   {r}
+      57        0   100.00   {s}
+      65        0   100.00   {t}
+      54        1    98.15   {u}
+      44        0   100.00   {v}
+      12        0   100.00   {z}
+      17        0   100.00   {ć}
+      10        0   100.00   {č}
+       2        0   100.00   {đ}
+      14        0   100.00   {š}
+      15        0   100.00   {ž}
